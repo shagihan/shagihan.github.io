@@ -155,7 +155,6 @@ h1, h2, h3, h4, h5, h6 {
 #hero {
   width: 100%;
   height: 100vh;
-  background: url(https://instagram.fcmb3-1.fna.fbcdn.net/v/t51.2885-15/e35/67616391_473111886604765_2507600833101315856_n.jpg?_nc_ht=instagram.fcmb3-1.fna.fbcdn.net&_nc_cat=101&oh=ca5c7b2eb40730a6ea1af3b013f4de94&oe=5E6CF7D7) top center;
   background-size: cover;
   position: relative;
 }
@@ -998,6 +997,31 @@ body.mobile-nav-active #mobile-nav-toggle {
   color: #ccc;
 }
 
+    ----Gradient---
+    html {
+  height: 100%;
+  background: linear-gradient(white, #0324fc, white);
+  background-size: .1rem 400%;
+  animation: bg 8s infinite;
+}
+
+body {
+  height: 100%;
+}
+
+@keyframes bg {
+  0% {
+    background-position: 0 0;
+  }
+  
+  50% {
+    background-position: 0 200%;
+  }
+  
+  100% {
+    background-position: 0 400%;
+  }
+}
   </style>
 
   <!-- =======================================================
@@ -1224,7 +1248,17 @@ $('[data-toggle="counter-up"]').counterUp({
 // custom code
 
 });
+    
+var bg = new Trianglify({
+  noiseIntensity: 0,
+  cellsize: 50,
+  cellpadding: 10,
+  fillOpacity: 1,
+  strokeOpacity: 0
+});
 
+var pattern = bg.generate(document.body.clientWidth, document.body.clientHeight);
+document.body.setAttribute('style', 'background-image: '+pattern.dataUrl);
   </script>
   <script>
     
