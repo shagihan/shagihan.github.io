@@ -68,7 +68,7 @@
 			<div class="row" ng-app="TestApp" ng-controller="testController">
 				<div class="col-sm-6 col-lg-4 mb-4" ng-repeat="x in details" >
 					<div class="blog-entry">
-						<a href="#"><img src="{{x.thumbnail}}" alt="Image placeholder" class="img-fluid"></a>
+						<a href="{{x.link}}"><img src="{{x.thumbnail}}" alt="Image placeholder" class="img-fluid"></a>
 						<div class="blog-entry-text">
 							<h3><a href="{{x.link}}">{{x.title}}</a></h3>
 							<p class="mb-4">click on the link to read the full content of the article.</p>
