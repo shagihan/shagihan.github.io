@@ -1,0 +1,109 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+.top1 {
+    font-family: 'Quicksand', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1200px;
+    background-color: #9b87ca;
+    transition: all 0.5s ease-in;
+}
+
+
+.container {
+    width: 50%;
+    justify-content: center;
+    align-content: center;
+    display: flex;
+}
+
+.card {
+    min-height: 80vh;
+    width: 35rem;
+    box-shadow: 0 20px 20px rgb(0, 0, 0,0.5), 0px 0px 50px  rgb(0, 0, 0,0.5);
+    border-radius: 10px;
+    padding: 5rem 5rem;
+    transform-style: preserve-3d;
+    background-color: #dcd8d8;
+}
+
+.toppart {
+    min-height: 30vh;
+    justify-content: center;
+    align-content: center;
+    display: flex;
+}
+
+.toppart img {
+    width: 15rem;
+    height: 15rem;
+    transition: all 1.2s ease-out;
+}
+
+.img-back-round {
+    width: 15rem;
+    height: 15rem;
+    background: linear-gradient(to right, #4b01ff,#ec050566, transparent);
+    border-radius: 50%;
+    position: absolute;
+    z-index: -1;
+    transition: all 0.8s ease-out;
+}
+
+.down h1 {
+    margin-top: 2%;
+    text-align: center;
+    padding: 2%;
+    text-transform: none;
+    font-size: 3em;
+    font-weight: bold;
+    transition: all 0.8s ease-out;
+}
+
+.down h2 {
+    text-align: center;
+    padding: 2%;
+    text-transform: uppercase;
+    font-size: 1.5em;
+    margin-top: 15%;
+    transition: all 1s ease-out;
+}
+
+ .down button {  
+     width: 100%;
+     padding: 1rem 0rem;
+     background: coral;
+     color: azure;
+     border: none;
+     cursor: pointer;
+    border-radius: 30px;
+    font-weight: bold;
+    margin-top: 10%;
+    transition: all 0.8s ease-out;
+ }
+
+ .code{
+     min-height: 100vh;
+     display: block;
+     padding: 2% 10% 20% 10%;
+    align-items: center;
+    justify-content: center;
+    background: #dcb177;
+ }
+
+ .code h1{
+    text-transform: none;
+    text-align: center;
+    color: #dcd8d8;
+    font-size: 3em;
+    font-weight: bold;
+    transition: all 0.8s ease-out;
+    margin-bottom: 1%;
+ }
