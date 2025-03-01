@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAuthn Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .button-resident {
+            background-color: #2196F3;
+        }
+        .button-resident:hover {
+            background-color: #0b7dda;
+        }
+        .button-logout {
+            background-color: #f44336;
+        }
+        .button-logout:hover {
+            background-color: #d32f2f;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+        }
+        #statusRegister, #statusLogin, #credential-info {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+        .info {
+            background-color: #d9edf7;
+            color: #31708f;
+        }
+        .hidden {
+            display: none;
+        }
+        .instructions {
+            background-color: #fffaf0;
+            padding: 15px;
+            border-left: 4px solid #ffa500;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .comparison {
+            display: flex;
+            margin: 20px 0;
+        }
+        .comparison-column {
+            flex: 1;
+            padding: 0 10px;
+        }
+        .comparison-column h4 {
+            text-align: center;
+            background-color: #e9e9e9;
+            padding: 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebAuthn Demo</h1>
+    <p>This page demonstrates the WebAuthn API for passkey-based authentication without using any external libraries.</p>
+    
+    <div class="instructions">
+        <h3>How to use this demo:</h3>
+        <ol>
+            <li>Enter your username in the field below</li>
+            <li>Choose between standard registration or resident key registration</li>
+            <li>Follow the browser prompts to register your passkey</li>
+            <li>Once registration is complete, the login section will automatically appear</li>
+            <li>Use your registered passkey to login</li>
+            <li>View the detailed authentication response</li>
+            <li>Use the logout button to clear credentials and start over</li>
+        </ol>
+        <p><strong>Note:</strong> Your credential will be saved in this browser's session storage. Clearing your browser data or closing the window will require you to register again.</p>
+    </div>
+    
+    <section id="register-section">
+        <h2>Register a Passkey</h2>
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter a username">
+        </div>
+        
+        <p>Choose your registration method:</p>
+        <button id="register-button">Register Standard Passkey</button>
+        <button id="register-resident-button" class="button-resident">Register Resident Key</button>
+        <div id="statusRegister" class="hidden"></div>
+        
+        <h3>Standard vs. Resident Keys</h3>
+        <p>WebAuthn supports two types of credential storage models:</p>
+        
+        <div class="comparison">
+            <div class="comparison-column">
+                <h4>Standard Passkey</h4>
+                <ul>
+                    <li>Server stores the credential ID</li>
+                    <li>Username is required for login</li>
+                    <li>Authenticator doesn't store user information</li>
+                </ul>
+            </div>
+            <div class="comparison-column">
+                <h4>Resident Key (Discoverable Credential)</h4>
+                <ul>
+                    <li>Credential is stored on the authenticator</li>
+                    <li>Username NOT required for login (passwordless)</li>
+                    <li>Enables true passwordless authentication</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>Registration Code Examples</h3>
+        
+        <div class="comparison">
+            <div class="comparison-column">
+                <h4>Standard Passkey Options</h4>
+                <pre><code>// Standard registration
+{
+  challenge: new Uint8Array([...]),
+  rp: {
+    name: "WebAuthn Demo",
+    id: window.location.hostname
+  },
+  user: {
+    id: new Uint8Array([...]),
+    name: username,
+    displayName: username
+  },
+  pubKeyCredParams: [
+    { type: "public-key", alg: -7 }
+  ],
+  authenticatorSelection: {
+    userVerification: "preferred"
+  }
+}</code></pre>
+            </div>
+            <div class="comparison-column">
+                <h4>Resident Key Options</h4>
+                <pre><code>// Resident key registration
+{
+  challenge: new Uint8Array([...]),
+  rp: {
+    name: "WebAuthn Demo",
+    id: window.location.hostname
+  },
+  user: {
+    id: new Uint8Array([...]),
+    name: username,
+    displayName: username
+  },
+  pubKeyCredParams: [
+    { type: "public-key", alg: -7 }
+  ],
+  authenticatorSelection: {
+    requireResidentKey: true,
+    residentKey: "required",
+    userVerification: "preferred"
+  }
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section id="login-section" class="hidden">
+        <h2>Login with Passkey</h2>
+        
+        <div id="username-login-section">
+            <div class="form-group">
+                <label for="username-login">Username:</label>
+                <input type="text" id="username-login" placeholder="Enter your username">
+            </div>
+            <button id="login-button">Login with Passkey</button>
+        </div>
+        
+        <div id="passwordless-login-section" class="hidden">
+            <p>With resident keys, you can login without a username:</p>
+            <button id="passwordless-login-button" class="button-resident">Passwordless Login</button>
+        </div>
+        
+        <div id="statusLogin" class="hidden"></div>
+        
+        <h3>Login Code Examples</h3>
+        
+        <div class="comparison">
+            <div class="comparison-column">
+                <h4>Standard Login Options</h4>
+                <pre><code>// Standard login
+{
+  challenge: new Uint8Array([...]),
+  rpId: window.location.hostname,
+  allowCredentials: [{
+    id: storedCredentialId,
+    type: 'public-key'
+  }],
+  userVerification: "preferred"
+}</code></pre>
+            </div>
+            <div class="comparison-column">
+                <h4>Resident Key Login Options</h4>
+                <pre><code>// Resident key login
+{
+  challenge: new Uint8Array([...]),
+  rpId: window.location.hostname,
+  // No allowCredentials needed!
+  userVerification: "preferred"
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section id="response-section" class="hidden">
+        <h2>Authentication Response</h2>
+        <div id="credential-info"></div>
+        <button id="logout-button" class="button-logout">Logout</button>
+    </section>
+
+    <script>
+        // DOM elements
+        const usernameInput = document.getElementById('username');
+        const usernameLoginInput = document.getElementById('username-login');
+        const registerButton = document.getElementById('register-button');
+        const registerResidentButton = document.getElementById('register-resident-button');
+        const loginButton = document.getElementById('login-button');
+        const passwordlessLoginButton = document.getElementById('passwordless-login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const statusRegister = document.getElementById('statusRegister');
+        const statusLogin = document.getElementById('statusLogin');
+        const responseSection = document.getElementById('response-section');
+        const credentialInfo = document.getElementById('credential-info');
+        const registerSection = document.getElementById('register-section');
+        const loginSection = document.getElementById('login-section');
+        const usernameLoginSection = document.getElementById('username-login-section');
+        const passwordlessLoginSection = document.getElementById('passwordless-login-section');
+
+        // Load saved credential from session storage if exists
+        let savedCredential = null;
+        const storedCredential = sessionStorage.getItem('webauthnCredential');
+        let isResidentKey = false;
+        
+        // Check if we already have a credential and update UI accordingly
+        if (storedCredential) {
+            savedCredential = JSON.parse(storedCredential);
+            isResidentKey = savedCredential.isResidentKey || false;
+            registerSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+            
+            if (isResidentKey) {
+                usernameLoginSection.classList.add('hidden');
+                passwordlessLoginSection.classList.remove('hidden');
+            } else {
+                usernameLoginInput.value = savedCredential.username;
+            }
+        }
+        
+        // Utility functions for encoding/decoding
+        function bufferToBase64URLString(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let str = '';
+            for (const charCode of bytes) {
+                str += String.fromCharCode(charCode);
+            }
+            const base64String = btoa(str);
+            return base64String.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        }
+
+        function base64URLStringToBuffer(base64URLString) {
+            const base64 = base64URLString.replace(/-/g, '+').replace(/_/g, '/');
+            const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+            const binary = atob(padded);
+            const buffer = new ArrayBuffer(binary.length);
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return buffer;
+        }
+
+        function generateRandomBuffer() {
+            const array = new Uint8Array(32);
+            window.crypto.getRandomValues(array);
+            return array;
+        }
+
+        function getUserIdFromUsername(username) {
+            // Simple conversion of username to Uint8Array
+            const encoder = new TextEncoder();
+            return encoder.encode(username);
+        }
+
+        function showStatus(element, message, type) {
+            element.textContent = message;
+            element.className = type;
+            element.classList.remove('hidden');
+        }
+
+        function prettyPrintObject(obj) {
+            return JSON.stringify(obj, (key, value) => {
+                if (value instanceof ArrayBuffer) {
+                    return bufferToBase64URLString(value);
+                } else if (value instanceof Uint8Array) {
+                    return bufferToBase64URLString(value.buffer);
+                }
+                return value;
+            }, 2);
+        }
+
+        // Register a standard passkey
+        registerButton.addEventListener('click', async () => {
+            await registerCredential(false);
+        });
+
+        // Register a resident key
+        registerResidentButton.addEventListener('click', async () => {
+            await registerCredential(true);
+        });
+
+        // Common registration function
+        async function registerCredential(isResident) {
+            let username = usernameInput.value.trim();
+            if (!isResident && !username) {
+                showStatus(statusRegister, 'Please enter a username first', 'error');
+                return;
+            }
+
+            if(isResident) {
+                username = "Resident-key-test"
+            }
+            
+
+            try {
+                // Check if WebAuthn is supported
+                if (!window.PublicKeyCredential) {
+                    showStatus(statusRegister, 'WebAuthn is not supported in this browser', 'error');
+                    return;
+                }
+
+                const userId = getUserIdFromUsername(username);
+                const challenge = generateRandomBuffer();
+
+                const publicKeyCredentialCreationOptions = {
+                    challenge,
+                    rp: {
+                        name: "WebAuthn Demo",
+                        id: window.location.hostname
+                    },
+                    user: {
+                        id: userId,
+                        name: username,
+                        displayName: username
+                    },
+                    pubKeyCredParams: [
+                        { type: "public-key", alg: -7 },  // ES256
+                        { type: "public-key", alg: -257 } // RS256
+                    ],
+                    authenticatorSelection: {
+                        userVerification: "preferred"
+                    },
+                    timeout: 60000
+                };
+                
+                // If resident key, add required properties
+                if (isResident) {
+                    publicKeyCredentialCreationOptions.authenticatorSelection.requireResidentKey = true;
+                    publicKeyCredentialCreationOptions.authenticatorSelection.residentKey = "required";
+                }
+
+                showStatus(statusRegister, `Creating ${isResident ? 'resident key' : 'standard'} credential, please follow the prompts...`, 'info');
+                
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyCredentialCreationOptions
+                });
+
+                // Save credential ID for login
+                savedCredential = {
+                    id: credential.id,
+                    rawId: bufferToBase64URLString(credential.rawId),
+                    type: credential.type,
+                    username: username,
+                    isResidentKey: isResident
+                };
+                
+                // Save to session storage
+                sessionStorage.setItem('webauthnCredential', JSON.stringify(savedCredential));
+
+                // Update UI to show login section
+                registerSection.classList.add('hidden');
+                loginSection.classList.remove('hidden');
+                
+                if (isResident) {
+                    usernameLoginSection.classList.add('hidden');
+                    passwordlessLoginSection.classList.remove('hidden');
+                    showStatus(statusLogin, 'Resident key registered! You can now login without a username.', 'success');
+                } else {
+                    usernameLoginInput.value = username;
+                    showStatus(statusLogin, 'Registration successful! You can now login with your passkey.', 'success');
+                }
+                
+                // Show the full credential response
+                credentialInfo.innerHTML = '<h3>Registration Response:</h3>';
+                const response = credential.response;
+                const credentialData = {
+                    id: credential.id,
+                    rawId: bufferToBase64URLString(credential.rawId),
+                    type: credential.type,
+                    response: {
+                        attestationObject: bufferToBase64URLString(response.attestationObject),
+                        clientDataJSON: bufferToBase64URLString(response.clientDataJSON),
+                        clientDataJSONDecoded: JSON.parse(new TextDecoder().decode(response.clientDataJSON))
+                    }
+                };
+                
+                credentialInfo.innerHTML += `<pre>${prettyPrintObject(credentialData)}</pre>`;
+                responseSection.classList.remove('hidden');
+
+            } catch (error) {
+                showStatus(statusRegister, `Error during registration: ${error.message}`, 'error');
+                console.error('Registration error:', error);
+            }
+        }
+
+        // Login with standard passkey
+        loginButton.addEventListener('click', async () => {
+            const username = usernameLoginInput.value.trim();
+            if (!username) {
+                showStatus(statusLogin, 'Please enter your username', 'error');
+                return;
+            }
+            
+            if (!savedCredential || savedCredential.username !== username) {
+                showStatus(statusLogin, 'No matching credential found for this username', 'error');
+                return;
+            }
+            
+            await loginWithCredential(false);
+        });
+
+        // Login with resident key (passwordless)
+        passwordlessLoginButton.addEventListener('click', async () => {
+            await loginWithCredential(true);
+        });
+
+        // Common login function
+        async function loginWithCredential(isPasswordless) {
+            try {
+                // For standard login, we need to check if savedCredential exists
+                if (!isPasswordless && !savedCredential) {
+                    showStatus(statusLogin, 'No credential found. Please register first.', 'error');
+                    return;
+                }
+
+                const challenge = generateRandomBuffer();
+                
+                const publicKeyCredentialRequestOptions = {
+                    challenge,
+                    rpId: window.location.hostname,
+                    userVerification: "preferred",
+                    timeout: 60000
+                };
+                
+                // For standard login, we need to specify the credential
+                if (!isPasswordless) {
+                    publicKeyCredentialRequestOptions.allowCredentials = [{
+                        id: base64URLStringToBuffer(savedCredential.rawId),
+                        type: 'public-key'
+                    }];
+                }
+
+                showStatus(statusLogin, 'Verifying credential, please follow the prompts...', 'info');
+                
+                const assertion = await navigator.credentials.get({
+                    publicKey: publicKeyCredentialRequestOptions
+                });
+                
+                let username = savedCredential ? savedCredential.username : "user";
+                if (isPasswordless) {
+                    // For resident keys, try to extract username from userHandle
+                    if (assertion.response.userHandle) {
+                        username = new TextDecoder().decode(assertion.response.userHandle);
+                    }
+                }
+
+                showStatus(statusLogin, `Login successful! Welcome, ${username}!`, 'success');
+                
+                // Show the full assertion response
+                credentialInfo.innerHTML = '<h3>Login Response:</h3>';
+                const response = assertion.response;
+                const assertionData = {
+                    id: assertion.id,
+                    rawId: bufferToBase64URLString(assertion.rawId),
+                    type: assertion.type,
+                    response: {
+                        authenticatorData: bufferToBase64URLString(response.authenticatorData),
+                        clientDataJSON: bufferToBase64URLString(response.clientDataJSON),
+                        clientDataJSONDecoded: JSON.parse(new TextDecoder().decode(response.clientDataJSON)),
+                        signature: bufferToBase64URLString(response.signature),
+                        userHandle: response.userHandle ? bufferToBase64URLString(response.userHandle) : null
+                    },
+                    isPasswordless: isPasswordless
+                };
+                
+                credentialInfo.innerHTML += `<pre>${prettyPrintObject(assertionData)}</pre>`;
+                responseSection.classList.remove('hidden');
+
+            } catch (error) {
+                showStatus(statusLogin, `Error during login: ${error.message}`, 'error');
+                console.error('Login error:', error);
+            }
+        }
+
+        // Logout function
+        logoutButton.addEventListener('click', () => {
+            // Clear session storage
+            sessionStorage.removeItem('webauthnCredential');
+            savedCredential = null;
+            isResidentKey = false;
+            
+            // Reset UI
+            registerSection.classList.remove('hidden');
+            loginSection.classList.add('hidden');
+            responseSection.classList.add('hidden');
+            usernameLoginSection.classList.remove('hidden');
+            passwordlessLoginSection.classList.add('hidden');
+            
+            // Clear input fields
+            usernameInput.value = '';
+            usernameLoginInput.value = '';
+            
+            // Clear status messages
+            statusRegister.classList.add('hidden');
+            statusLogin.classList.add('hidden');
+            
+            // Show confirmation
+            alert('Logged out successfully. All credentials have been cleared.');
+        });
+    </script>
+</body>
+</html>
