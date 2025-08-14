@@ -1,504 +1,436 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>It's me, Shanaka</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000000;
-            color: #ffffff;
-            font-family: 'Quicksand', sans-serif;
-            overflow: hidden; 
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>It's me, Shanaka</title>
 
-        #webgl-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            outline: none;
-            z-index: -1;
-        }
+  <!-- Import map resolves bare specifiers in this sandbox -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 
-        #page-container {
-            position: relative;
-            height: 100vh;
-            transition: transform 1.2s cubic-bezier(0.76, 0, 0.24, 1);
-        }
+  <style>
+    :root { --bg0:#071d14; --bg1:#0e2e20; --accent:#b6ffda; --accent2:#3cf2ff; --text:#e8fff6; --muted:#a5bfb4; --border:rgba(182,255,218,.25); }
 
-        .content-section {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 1rem;
-            box-sizing: border-box;
-            position: relative;
-        }
+    html,body{min-height:100%;height:auto;margin:0;overflow-x:hidden;color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:radial-gradient(160vmax 160vmax at 70% -20%, var(--bg1), var(--bg0));}
+    body{transition:background 1.2s ease}
 
-        .content-wrapper {
-            max-width: 650px;
-            width: 100%;
-            padding: 2rem;
-            background-color: rgba(20, 20, 20, 0.7);
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            position: relative;
-            border: 1px solid transparent;
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
-        }
-        
-        .content-wrapper:hover {
-            border-color: rgba(66, 165, 245, 0.5);
-            box-shadow: 0 0 25px rgba(66, 165, 245, 0.3);
-        }
-        
-        #home-wrapper {
-            padding-top: 75px; 
-        }
-        
-        #home-wrapper p {
-            margin-top: 1.5rem;
-        }
+    /* Ambient overlay */
+    body::before{content:"";position:fixed;inset:-6%;z-index:0;pointer-events:none;opacity:.36;background:conic-gradient(from 180deg at 50% 50%, color-mix(in srgb, var(--accent) 15%, transparent) 0deg, transparent 90deg, color-mix(in srgb, var(--accent2) 15%, transparent) 180deg, transparent 270deg, color-mix(in srgb, var(--accent) 15%, transparent) 360deg);filter:blur(70px);animation:aura 24s linear infinite}
+    @keyframes aura{to{transform:rotate(360deg)}}
 
-        h1 {
-            font-family: 'Fira Code', monospace;
-            font-size: 2.8rem;
-            font-weight: 700;
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-        }
+    /* Links */
+    a{color:var(--accent);text-decoration:none;position:relative;transition:transform .2s ease, color .2s ease}
+    a:not(.more)::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform .25s ease;opacity:.9}
+    a:hover{transform:translateY(-1px)}
+    a:hover::after{transform:scaleX(1)}
 
-        p {
-            font-size: 1.2rem;
-            line-height: 1.7;
-        }
-        
-        @keyframes siri-glow {
-            0% { text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
-            50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
-            100% { text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
-        }
+    /* Headings sheen */
+    .sheen{background:linear-gradient(90deg,var(--text),color-mix(in srgb,var(--accent) 60%, var(--text)),var(--text));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;transition:background-position .35s ease, text-shadow .2s ease}
+    .sheen:hover{background-position:100% 0;text-shadow:0 0 12px color-mix(in srgb,var(--accent) 35%, transparent)}
 
-        h1:hover, p:not(.signature):hover {
-            animation: siri-glow 1.5s infinite ease-in-out;
-        }
+    /* Scene */
+    .scene{position:fixed;inset:0;z-index:0;pointer-events:none}
+    canvas{display:block}
 
-        .signature {
-            font-family: 'Dancing Script', cursive;
-            font-size: 2.2rem;
-            text-align: right;
-            margin-top: 2rem;
-            margin-right: 1rem;
-            color: #42a5f5;
-        }
-        
-        @keyframes signature-glow {
-            0% { text-shadow: 0 0 10px rgba(66, 165, 245, 0.5); }
-            50% { text-shadow: 0 0 25px rgba(66, 165, 245, 1); }
-            100% { text-shadow: 0 0 10px rgba(66, 165, 245, 0.5); }
-        }
+    /* Sections */
+    main{position:relative;z-index:1}
+    section{min-height:100svh;display:flex;align-items:center}
+    .container{width:min(1100px,92%);margin:0 auto}
 
-        .signature:hover {
-            animation: signature-glow 1.5s infinite ease-in-out;
-        }
+    /* Cards */
+    .panel{background:rgba(2,20,14,.42);border:1px solid rgba(182,255,218,.2);border-radius:20px;padding:28px 28px 22px 28px;backdrop-filter:blur(8px);box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateZ(0);transition:transform .25s cubic-bezier(.2,1.1,.2,1), box-shadow .25s ease}
+    .panel:hover{transform:translateY(-2px);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+    .panel h1{font-size:clamp(28px,5vw,48px);margin:0 0 8px}
+    .panel p{color:var(--muted);margin:8px 0 0}
 
-        #profile-pic {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 4px solid #ffffff;
-            object-fit: cover;
-            position: absolute;
-            top: -75px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
+    /* Reveal */
+    .reveal{animation:rubber .9s cubic-bezier(.2,1.1,.2,1) both}
+    @keyframes rubber{0%{transform:scale(.94) translateY(10px)}60%{transform:scale(1.03) translateY(-2px)}100%{transform:scale(1) translateY(0)}}
 
-        #blog-posts-container {
-            width: 100%;
-        }
+    /* Layout */
+    #intro .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:28px}
+    #intro h2{margin:16px 0 8px 0}
+    #intro ul{margin:6px 0 0 16px;line-height:1.6}
 
-        .blog-post {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            text-align: left;
-            transition: background-color 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+    /* Blog */
+    #blog h2{font-size:28px;margin:0 0 12px 0}
+    .posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+    .post{position:relative;display:flex;flex-direction:column;gap:8px;background:rgba(2,20,14,.42);border:1px solid rgba(182,255,218,.2);border-radius:16px;padding:16px;min-height:140px;transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease}
+    .post::before{content:"";position:absolute;inset:-1px;border-radius:16px;padding:1px;background:linear-gradient(120deg,transparent, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%);-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .25s ease}
+    .post:hover{transform:translateY(-3px) scale(1.02); box-shadow:0 20px 60px rgba(0,0,0,.4); border-color: color-mix(in srgb,var(--accent) 30%, transparent)}
+    .post:hover::before{opacity:1}
+    .post h3{margin:0;font-size:16px}
+    .post time{font-size:12px;color:var(--muted)}
+    .more{margin-top:14px;display:inline-block;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.25)}
 
-        .blog-post:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-        }
+    /* Contact */
+    #contact .card{background:rgba(2,20,14,.42);border:1px solid rgba(182,255,218,.2);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px}
+    .icons{display:flex;gap:14px;flex-wrap:wrap}
+    .icon{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(0,0,0,.25);transition:transform .2s ease, box-shadow .2s ease}
+    .icon:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+    .sig{margin-top:16px;font-family:"Segoe Script","Bradley Hand",cursive;font-size:18px;opacity:.9}
 
-        .blog-post a { text-decoration: none; color: #ffffff; display: block; }
-        .blog-post h3 { margin: 0 0 0.5rem 0; color: #42a5f5; font-size: 1.5rem; }
-        .blog-post p { font-size: 1rem; line-height: 1.5; margin: 0; opacity: 0.8; }
-        
-        #see-more-link {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            color: #42a5f5;
-            text-decoration: none;
-            border: 1px solid #42a5f5;
-            border-radius: 0.5rem;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        #see-more-link:hover { background-color: #42a5f5; color: #000000; }
-        
-        .social-links-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
+    footer{color:var(--muted);text-align:center;padding:30px 10px}
 
-        .social-link { color: #ffffff; transition: color 0.3s ease; }
-        .social-link:hover { color: #42a5f5; }
-        .social-link svg { width: 40px; height: 40px; fill: currentColor; }
-        
-        #scroll-indicator {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            color: rgba(255, 255, 255, 0.7);
-            transition: opacity 0.5s ease;
-        }
+    /* HUD */
+    .hud{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:3;padding:10px 12px;border-radius:12px;backdrop-filter:blur(8px);background:rgba(0,0,0,.35);border:1px solid var(--border);font-size:13px;line-height:1.35;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .hud .sep{opacity:.5}
 
-        #scroll-indicator svg {
-            width: 24px;
-            height: 24px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                overflow-y: auto; /* Enable scrolling on mobile */
-            }
-
-            #page-container {
-                /* Enable scroll snapping for a mobile-friendly experience */
-                scroll-snap-type: y mandatory;
-                overflow-y: scroll;
-                height: 100vh;
-                transform: none !important; /* Disable JS transform on mobile */
-            }
-            
-            .content-section {
-                scroll-snap-align: start; /* Snap each section to the top */
-                height: 100vh; /* Ensure sections take full viewport height */
-            }
-
-            h1 { font-size: 2rem; }
-            p { font-size: 1rem; }
-            .content-wrapper { padding: 1.5rem; }
-            #profile-pic { width: 120px; height: 120px; top: -60px; }
-            #home-wrapper { padding-top: 60px; }
-            .blog-post h3 { font-size: 1.2rem; }
-            .social-links-container { gap: 1.5rem; }
-            .social-link svg { width: 35px; height: 35px; }
-            .signature { font-size: 1.8rem; }
-            #scroll-indicator { display: none; } /* Hide desktop scroll indicator */
-        }
-
-    </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Fira+Code:wght@700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    @media (max-width: 900px){ #intro .grid{grid-template-columns:1fr} section{min-height:auto;padding:80px 0} .hud{left:50%;right:auto;transform:translateX(-50%);max-width:92%}}
+    @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} .reveal{animation:none} }
+  </style>
 </head>
 <body>
+  <div class="scene" id="scene"></div>
 
-    <canvas id="webgl-canvas"></canvas>
-    
-    <div id="scroll-indicator">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
-            <path fill-rule="evenodd" d="M7.646 8.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 9.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
-        </svg>
-    </div>
+  <div class="hud" id="hud">
+    <span>Use <b>↑/↓</b> or <b>scroll</b> to jump pages</span>
+    <span class="sep">•</span>
+    <a href="#intro">About</a>
+    <span class="sep">|</span>
+    <a href="#blog">Blog</a>
+    <span class="sep">|</span>
+    <a href="#contact">Contact</a>
+  </div>
 
-    <div id="page-container">
-        <div class="content-section">
-            <div class="content-wrapper" id="home-wrapper">
-                <img src="https://avatars3.githubusercontent.com/u/11259401?s=400&u=51032e514fcd603a20d7497cd113e75d338d0163&v=4" id="profile-pic" alt="A circular profile picture of Shagihan">
-                <h1>About Me</h1>
-                <p>Hello! I'm Shagihan. As a dedicated and passionate individual working my way up in the software industry, I thrive on challenges and continuous learning. My journey through the Sri Lanka Institute of Information Technology equipped me with strong technical skills, but it's my leadership qualities and quick learning ability that truly drive me to build innovative and impactful solutions.</p>
-                <p class="signature">- Shagihan</p>
-            </div>
+  <main>
+    <section id="intro">
+      <div class="container">
+        <div class="grid">
+          <div class="panel">
+            <h1 class="sheen">Hi, I’m <span style="color:var(--accent)">Shanaka Sandanayaka</span> — IAM Engineer & Builder</h1>
+            <p>Lead developer for enterprise IAM and secure APIs. I design resilient identity systems, developer tooling, and immersive web experiences.</p>
+            <h2 class="sheen">About me</h2>
+            <p>
+              I build identity and access management platforms (OAuth2/OIDC, SAML, SCIM), and ship production software across Java/JS stacks.
+              Currently a Lead Developer (IAM) at OP Financial Group (Helsinki); previously Senior IAM Engineer at WithSecure and multiple roles at WSO2 delivering API & Identity solutions to global enterprises.
+            </p>
+          </div>
+          <div class="panel">
+            <h2 class="sheen">Highlights</h2>
+            <ul>
+              <li>Lead Developer (IAM) — OP Financial Group (2024–now)</li>
+              <li>Senior Engineer (IAM) — WithSecure (2021–2024)</li>
+              <li>Associate Tech Lead / Senior SE — WSO2 (2017–2024)</li>
+              <li>Awards: WSO2 Sustained Outstanding Contributor (2018, 2019)</li>
+              <li>Certs: AWS Solutions Architect Associate; WSO2 IS/APIM certs</li>
+              <li>Skills: Java, JS/React, Spring Boot, Docker, K8s, API Mgmt, ABAC/XACML</li>
+            </ul>
+          </div>
         </div>
-        <div class="content-section" id="blog-section">
-            <div class="content-wrapper">
-                <h1>Latest Posts</h1>
-                <div id="blog-posts-container">
-                    <p>Loading posts from Medium...</p>
-                </div>
-            </div>
+      </div>
+    </section>
+
+    <section id="blog">
+      <div class="container">
+        <div class="panel">
+          <h2 class="sheen">Latest posts</h2>
+          <p style="color:var(--muted);margin:0 0 10px 0">Pulled from Medium (<code>@shagihan</code>). Showing 5 latest.</p>
+          <div class="posts" id="posts"></div>
+          <a id="seeMore" class="more" href="https://medium.com/@shagihan" target="_blank" rel="noopener">See more on Medium →</a>
         </div>
-        <div class="content-section" id="contact-section">
-            <div class="content-wrapper">
-                <h1>Connect With Me</h1>
-                <div class="social-links-container">
-                    <a href="https://www.linkedin.com/in/shagihan/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
-                    <a href="https://github.com/shagihan" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a>
-                    <a href="https://twitter.com/shagihan" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="X (formerly Twitter)"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.617l-5.21-6.817-6.022 6.817h-3.308l7.732-8.835-8.211-10.665h6.836l4.556 6.231 5.49-6.231zm-1.161 17.52h1.839l-10.125-13.9h-1.998l10.284 13.9z"/></svg></a>
-                    <a href="https://medium.com/@shagihan" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Medium"><svg viewBox="0 0 24 24"><path d="M7.45,18.26H5.66V5.74H7.45ZM14,18.26h-.21l-3.4-8.34,3.4-4.18h.21V18.26Zm.88,0V5.74h4.15a4.26,4.26,0,0,1,1.5.25,2.18,2.18,0,0,1,1.17,1,2,2,0,0,1,.41,1.33,2.44,2.44,0,0,1-.57,1.74,3.33,3.33,0,0,1-1.5,1.15l2.54,6.81h-2L17.3,13.05H14.86V18.26Z"/></svg></a>
-                </div>
-            </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <div class="card">
+          <h2 class="sheen">Contact</h2>
+          <p style="color:var(--muted);margin-top:0">I’d love to connect about identity engineering, secure APIs, and developer tooling. If you have an interesting problem space, let’s talk.</p>
+          <div class="icons">
+            <a class="icon" href="https://github.com/shagihan" target="_blank" rel="noopener" aria-label="GitHub">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.79 23.4c.6.1.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61-.55-1.38-1.35-1.75-1.35-1.75-1.1-.76.08-.75.08-.75 1.21.08 1.85 1.24 1.85 1.24 1.08 1.84 2.83 1.31 3.52 1 .11-.79.42-1.31.76-1.61-2.67-.3-5.48-1.34-5.48-5.95 0-1.31.47-2.37 1.24-3.21-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.43 11.43 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.24 2.87.12 3.17.77.84 1.23 1.9 1.23 3.2 0 4.62-2.82 5.65-5.5 5.95.43.37.82 1.1.82 2.22v3.29c0 .32.21.69.83.57A12 12 0 0 0 12 .5Z"/></svg>
+              GitHub
+            </a>
+            <a class="icon" href="https://www.linkedin.com/in/shanaka-sandanayaka/" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.5h4V24h-4V8.5zM8.5 8.5h3.8v2.1h.1c.5-1 1.8-2.1 3.7-2.1 3.9 0 4.6 2.5 4.6 5.8V24h-4v-6.5c0-1.6 0-3.7-2.2-3.7-2.2 0-2.5 1.7-2.5 3.6V24h-4V8.5z"/></svg>
+              LinkedIn
+            </a>
+            <a class="icon" href="https://medium.com/@shagihan" target="_blank" rel="noopener" aria-label="Medium">
+              <svg viewBox="0 0 1043.63 592.71" width="18" height="18" fill="currentColor"><path d="M588.67 296.35c0 163.67-131.97 296.35-294.33 296.35S0 460.02 0 296.35 131.97 0 294.33 0s294.33 132.68 294.33 296.35M829.08 296.35c0 152.69-65.98 276.44-147.38 276.44-81.41 0-147.39-123.75-147.39-276.44s65.98-276.44 147.39-276.44 147.38 123.75 147.38 276.44m214.55 0c0 140.08-23.48 253.6-52.43 253.6-28.95 0-52.43-113.52-52.43-253.6 0-140.09 23.48-253.6 52.43-253.6 28.95 0 52.43 113.51 52.43 253.6"/></svg>
+              Medium
+            </a>
+          </div>
+          <div class="sig">— Shanaka</div>
         </div>
-    </div>
+      </div>
+    </section>
+  </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        // --- Three.js Setup ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        camera.position.z = 5;
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const pointLight = new THREE.PointLight(0xffffff, 1);
-        pointLight.position.set(5, 5, 5);
-        scene.add(pointLight);
+  <footer>© <span id="y"></span> Shanaka Sandanayaka — All rights reserved.</footer>
 
-        // --- Particle Creation ---
-        let points;
-        let originalPositions, randomDirections, sandPositions;
-        const particleCount = 40000;
-        const geometry = new THREE.TorusKnotGeometry(1.8, 0.5, 300, 48);
-        const positions = new Float32Array(particleCount * 3);
-        originalPositions = new Float32Array(particleCount * 3);
-        randomDirections = new Float32Array(particleCount * 3);
-        sandPositions = new Float32Array(particleCount * 3);
-        const tempPositions = geometry.attributes.position.array;
-        const tempCount = geometry.attributes.position.count;
-        const floorY = -6;
-        for (let i = 0; i < particleCount; i++) {
-            const i3 = i * 3;
-            const randomVertexIndex = Math.floor(Math.random() * tempCount);
-            const v3 = randomVertexIndex * 3;
-            positions[i3] = tempPositions[v3];
-            positions[i3 + 1] = tempPositions[v3 + 1];
-            positions[i3 + 2] = tempPositions[v3 + 2];
-            originalPositions[i3] = positions[i3];
-            originalPositions[i3 + 1] = positions[i3 + 1];
-            originalPositions[i3 + 2] = positions[i3 + 2];
-            randomDirections[i3] = (Math.random() - 0.5) * 15;
-            randomDirections[i3 + 1] = (Math.random() - 0.5) * 15;
-            randomDirections[i3 + 2] = (Math.random() - 0.5) * 15;
-            sandPositions[i3] = (Math.random() - 0.5) * 10;
-            sandPositions[i3 + 1] = floorY + (Math.random() - 0.5) * 0.5;
-            sandPositions[i3 + 2] = (Math.random() - 0.5) * 10;
-        }
-        geometry.dispose();
-        const particleGeometry = new THREE.BufferGeometry();
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const particleMaterial = new THREE.PointsMaterial({ color: 0x42a5f5, size: 0.025, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
-        points = new THREE.Points(particleGeometry, particleMaterial);
-        points.renderOrder = 1;
-        scene.add(points);
+  <div id="toast" style="position:fixed;top:64px;left:16px;z-index:4;padding:8px 10px;background:#103728;color:#d4fff0;border:1px solid #2ccf9d;border-radius:8px;font:12px/1.25 system-ui;display:none"></div>
 
-        // --- Subtle Meteor Shower using Cylinders ---
-        const meteors = [];
-        const meteorCount = 40;
-        const meteorMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false });
-        const meteorGeometry = new THREE.CylinderGeometry(0.01, 0.01, 1.0, 8);
-        for (let i = 0; i < meteorCount; i++) {
-            const meteor = new THREE.Mesh(meteorGeometry, meteorMaterial);
-            meteor.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.03, -0.1 - Math.random() * 0.05, 0);
-            meteor.position.x = (Math.random() - 0.5) * 25;
-            meteor.position.y = 10 + Math.random() * 10;
-            meteor.position.z = (Math.random() - 0.5) * 15;
-            meteor.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), meteor.velocity.clone().normalize());
-            meteor.visible = false;
-            meteor.renderOrder = 0;
-            meteors.push(meteor);
-            scene.add(meteor);
-        }
+  <script type="module">
+    // ===================== 3D FACE + SPACE BACKGROUND =====================
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+    import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
 
-        // --- Dynamic Color Change ---
-        const colors = [ new THREE.Color(0x42a5f5), new THREE.Color(0xef5350), new THREE.Color(0x66bb6a), new THREE.Color(0xffca28), new THREE.Color(0xab47bc) ];
-        let colorIndex = 0;
-        setInterval(() => { colorIndex = (colorIndex + 1) % colors.length; }, 7000);
+    const DEBUG=false;
+    const toast = document.getElementById('toast');
+    const showToast = (msg, isErr=false) => { if(!DEBUG) return; toast.textContent = msg; toast.style.display='block'; toast.style.background = isErr ? '#3a0e0e' : '#103728'; toast.style.borderColor = isErr ? '#ff6b6b' : '#2ccf9d'; setTimeout(()=> toast.style.display='none', 2200); };
 
-        // --- Unified Scroll Logic ---
-        const pageContainer = document.getElementById('page-container');
-        const scrollIndicator = document.getElementById('scroll-indicator');
-        const sections = document.querySelectorAll('.content-section');
-        const totalSections = sections.length;
-        let currentSectionIndex = 0;
-        let isAnimating = false;
-        const isMobile = window.innerWidth <= 768;
+    const container = document.getElementById('scene');
+    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    container.appendChild(renderer.domElement);
 
-        function goToSection(index) {
-            if (index < 0 || index >= totalSections || isAnimating) return;
-            isAnimating = true;
-            currentSectionIndex = index;
-            pageContainer.style.transform = `translateY(-${currentSectionIndex * 100}vh)`;
-            scrollIndicator.style.opacity = (index === 0) ? '1' : '0';
-            setTimeout(() => { isAnimating = false; }, 1200);
-        }
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x071d14, 0.08);
 
-        if (!isMobile) {
-            window.addEventListener('wheel', event => {
-                if (isAnimating) return;
-                if (event.deltaY > 0) goToSection(currentSectionIndex + 1);
-                else goToSection(currentSectionIndex - 1);
-            });
-            window.addEventListener('keydown', event => {
-                if (isAnimating) return;
-                if (event.key === 'ArrowDown') goToSection(currentSectionIndex + 1);
-                else if (event.key === 'ArrowUp') goToSection(currentSectionIndex - 1);
-            });
-        } else {
-            pageContainer.addEventListener('scroll', () => {
-                const scrollPos = pageContainer.scrollTop;
-                const sectionHeight = window.innerHeight;
-                currentSectionIndex = Math.round(scrollPos / sectionHeight);
-            });
-        }
-        
-        // --- Animation Loop ---
-        const clock = new THREE.Clock();
-        const mouse = new THREE.Vector2();
-        let currentScrollPercent = 0;
-        let targetScrollPercent = 0;
+    const camera = new THREE.PerspectiveCamera(38, innerWidth/innerHeight, 0.01, 200);
+    scene.add(camera);
 
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            const targetColor = colors[colorIndex];
-            points.material.color.lerp(targetColor, 0.03);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
 
-            // Calculate target scroll percent based on device
-            if (isMobile) {
-                const scrollableHeight = pageContainer.scrollHeight - pageContainer.clientHeight;
-                targetScrollPercent = pageContainer.scrollTop / scrollableHeight;
-            } else {
-                targetScrollPercent = currentSectionIndex / (totalSections - 1);
-            }
-            currentScrollPercent = THREE.MathUtils.lerp(currentScrollPercent, targetScrollPercent, 0.07);
+    // ===== BG stars & shapes =====
+    const bgFar=new THREE.Group(), bgMid=new THREE.Group(), bgNear=new THREE.Group();
+    scene.add(bgFar); scene.add(bgMid); scene.add(bgNear);
 
-            const isLastSection = currentSectionIndex === totalSections - 1;
-            const posArray = points.geometry.attributes.position.array;
-            for (let i = 0; i < particleCount; i++) {
-                const i3 = i * 3;
-                const explodedX = originalPositions[i3] + randomDirections[i3];
-                const explodedY = originalPositions[i3 + 1] + randomDirections[i3 + 1];
-                const explodedZ = originalPositions[i3 + 2] + randomDirections[i3 + 2];
-                let currentX, currentY, currentZ;
+    function makeStars({count,spread,size,seed}){
+      const rnd=(()=>{let s=seed>>>0;return ()=> (s=(s*1664525+1013904223)>>>0)/4294967296;})();
+      const g=new THREE.BufferGeometry(); const pos=new Float32Array(count*3);
+      for(let i=0;i<count;i++){pos[i*3]=(rnd()-0.5)*spread;pos[i*3+1]=(rnd()-0.5)*spread*1.1;pos[i*3+2]=(rnd()-0.5)*spread}
+      g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+      const m=new THREE.PointsMaterial({size,transparent:true,depthWrite:false});
+      return new THREE.Points(g,m);
+    }
+    function makeConstellations(points,links=420,maxDist=2.6,opacity=0.12){
+      const pos=points.geometry.getAttribute('position'); const seg=[]; const A=new THREE.Vector3(), B=new THREE.Vector3();
+      for(let i=0;i<links;i++){const a=(Math.random()*pos.count)|0, b=(Math.random()*pos.count)|0; A.fromBufferAttribute(pos,a); B.fromBufferAttribute(pos,b); if(A.distanceTo(B)<=maxDist){seg.push(A.x,A.y,A.z,B.x,B.y,B.z)}}
+      const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(seg,3));
+      const m=new THREE.LineBasicMaterial({transparent:true,opacity});
+      return new THREE.LineSegments(g,m);
+    }
+    const farStars=makeStars({count:2600,spread:36,size:0.008,seed:2}); farStars.position.z=-18; bgFar.add(farStars);
+    const midStars=makeStars({count:1800,spread:24,size:0.012,seed:3}); midStars.position.z=-8; bgMid.add(midStars);
+    const nearStars=makeStars({count:1200,spread:12,size:0.02,seed:4}); nearStars.position.z=-3; bgNear.add(nearStars);
+    const constel=makeConstellations(midStars,520,2.4,0.12); bgMid.add(constel);
 
-                if (isLastSection) {
-                    const prevScrollPercent = (totalSections - 2) / (totalSections - 1);
-                    const prevStateX = THREE.MathUtils.lerp(originalPositions[i3], explodedX, prevScrollPercent);
-                    const prevStateY = THREE.MathUtils.lerp(originalPositions[i3 + 1], explodedY, prevScrollPercent);
-                    const prevStateZ = THREE.MathUtils.lerp(originalPositions[i3 + 2], explodedZ, prevScrollPercent);
-                    const lastSectionProgress = (currentScrollPercent - prevScrollPercent) / (1 - prevScrollPercent);
-                    const sandProgress = Math.max(0, Math.min(1, lastSectionProgress));
-                    currentX = THREE.MathUtils.lerp(prevStateX, sandPositions[i3], sandProgress);
-                    currentY = THREE.MathUtils.lerp(prevStateY, sandPositions[i3 + 1], sandProgress);
-                    currentZ = THREE.MathUtils.lerp(prevStateZ, sandPositions[i3 + 2], sandProgress);
-                } else {
-                    currentX = THREE.MathUtils.lerp(originalPositions[i3], explodedX, currentScrollPercent);
-                    currentY = THREE.MathUtils.lerp(originalPositions[i3 + 1], explodedY, currentScrollPercent);
-                    currentZ = THREE.MathUtils.lerp(originalPositions[i3 + 2], explodedZ, currentScrollPercent);
-                }
-                posArray[i3] = currentX;
-                posArray[i3 + 1] = currentY;
-                posArray[i3 + 2] = currentZ;
-            }
-            points.geometry.attributes.position.needsUpdate = true;
-            points.rotation.y = mouse.x * 0.2;
-            points.rotation.x = -mouse.y * 0.2;
-            points.rotation.z += 0.0005;
+    const objGroup=new THREE.Group(); bgMid.add(objGroup);
+    const icoGeo=new THREE.IcosahedronGeometry(0.12,0), boxGeo=new THREE.BoxGeometry(0.12,0.12,0.12), octGeo=new THREE.OctahedronGeometry(0.12,0);
+    const mat=new THREE.MeshStandardMaterial({color:'#4debd6',metalness:0.6,roughness:0.35,transparent:true,opacity:0.6});
+    const shapes=[icoGeo,boxGeo,octGeo];
+    for(let i=0;i<24;i++){
+      const mesh=new THREE.Mesh(shapes[i%shapes.length],mat.clone());
+      mesh.position.set((Math.random()-0.5)*10,(Math.random()-0.5)*6,-6-Math.random()*6);
+      mesh.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,0);
+      mesh.userData={vx:(Math.random()-0.5)*0.02, vy:(Math.random()-0.5)*0.02, vr:(Math.random()-0.5)*0.01};
+      objGroup.add(mesh);
+    }
 
-            // --- Meteor Shower Animation ---
-            const showMeteors = currentSectionIndex === 0 || isLastSection;
-            meteors.forEach(meteor => {
-                meteor.visible = showMeteors;
-                if (showMeteors) {
-                    meteor.position.x += meteor.velocity.x;
-                    meteor.position.y += meteor.velocity.y;
-                    meteor.position.z += meteor.velocity.z;
+    // ===== Dotted Face =====
+    const faceGroup = new THREE.Group(); scene.add(faceGroup);
+    let points = null; let sourceType='unknown';
 
-                    if (meteor.position.y < -10) {
-                        meteor.position.x = (Math.random() - 0.5) * 25;
-                        meteor.position.y = 10 + Math.random() * 10;
-                        meteor.position.z = (Math.random() - 0.5) * 15;
-                    }
-                }
-            });
+    async function loadHeadMesh(){
+      try{
+        const gltf = await new GLTFLoader().loadAsync('https://threejs.org/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb');
+        let mesh=null; gltf.scene.traverse(c=>{ if(c.isMesh) mesh=c; });
+        if(mesh){ mesh.geometry.computeVertexNormals(); sourceType='gltf'; return mesh; }
+        throw new Error('GLTF had no mesh');
+      }catch(e){ if(DEBUG) console.warn('GLTF failed, fallback OBJ', e); }
+      const obj = await new OBJLoader().setPath('https://threejs.org/examples/models/obj/male02/').loadAsync('male02.obj');
+      let mesh=null; obj.traverse(c=>{ if(c.isMesh) mesh=c; });
+      if(!mesh) throw new Error('OBJ had no mesh');
+      mesh.geometry.computeVertexNormals(); sourceType='obj'; return mesh;
+    }
 
-            renderer.render(scene, camera);
-        }
-        animate();
-        
-        // --- Other Listeners and Functions ---
-        window.addEventListener('mousemove', (event) => {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        });
-        window.addEventListener('resize', () => {
-            // Simple reload on resize can be a robust way to handle mobile orientation changes
-            window.location.reload();
-        });
-        async function fetchMediumFeed() {
-            const mediumUsername = 'shagihan';
-            const mediumProfileUrl = `https://medium.com/@${mediumUsername}`;
-            const rssToJsonApiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${mediumProfileUrl}/feed`;
-            const blogContainer = document.getElementById('blog-posts-container');
-            try {
-                const response = await fetch(rssToJsonApiUrl);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                if (data.status !== 'ok' || !data.items || data.items.length === 0) {
-                     blogContainer.innerHTML = '<p>Could not fetch posts or no posts found.</p>';
-                     return;
-                }
-                blogContainer.innerHTML = '';
-                const postsToShow = data.items.slice(0, 5);
-                postsToShow.forEach(item => {
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = item.description;
-                    const snippet = tempDiv.textContent.trim().substring(0, 150) + '...';
-                    const postElement = document.createElement('div');
-                    postElement.classList.add('blog-post');
-                    postElement.innerHTML = `<a href="${item.link}" target="_blank" rel="noopener noreferrer"><h3>${item.title}</h3><p>${snippet}</p></a>`;
-                    blogContainer.appendChild(postElement);
-                });
-                const seeMoreLink = document.createElement('a');
-                seeMoreLink.id = 'see-more-link';
-                seeMoreLink.href = mediumProfileUrl;
-                seeMoreLink.target = '_blank';
-                seeMoreLink.rel = 'noopener noreferrer';
-                seeMoreLink.textContent = 'See More on Medium';
-                document.getElementById('blog-section').querySelector('.content-wrapper').appendChild(seeMoreLink);
-            } catch (error) {
-                console.error("Error fetching Medium feed:", error);
-                blogContainer.innerHTML = '<p>Sorry, there was an error fetching the blog posts.</p>';
-            }
-        }
-        fetchMediumFeed();
-    </script>
+    function buildPointFaceFrom(mesh){
+      mesh.geometry.center(); mesh.geometry.computeBoundingSphere();
+      const r = mesh.geometry.boundingSphere.radius; mesh.scale.setScalar(0.95/r); mesh.rotation.y = Math.PI;
+
+      const COUNT=38000; const positions=new Float32Array(COUNT*3); const normals=new Float32Array(COUNT*3);
+      const sampler=new MeshSurfaceSampler(mesh).build(); const p=new THREE.Vector3(); const n=new THREE.Vector3();
+      for(let i=0;i<COUNT;i++){ sampler.sample(p,n); positions[i*3]=p.x; positions[i*3+1]=p.y; positions[i*3+2]=p.z; normals[i*3]=n.x; normals[i*3+1]=n.y; normals[i*3+2]=n.z; }
+      const geom=new THREE.BufferGeometry(); geom.setAttribute('position', new THREE.BufferAttribute(positions,3)); geom.setAttribute('normal', new THREE.BufferAttribute(normals,3));
+      const material=new THREE.ShaderMaterial({
+        uniforms:{ uColor:{value:new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#b6ffda')}, uPixelRatio:{value:Math.min(devicePixelRatio,2)}, uBaseSize:{value:3.4}, uGlow:{value:0.85} },
+        vertexShader:`uniform float uPixelRatio; uniform float uBaseSize; varying float vStrength; varying float vLambert; void main(){ vec3 n=normalize(normalMatrix*normal); vLambert=max(dot(n,vec3(0.,0.,1.)),0.); vec4 mv=modelViewMatrix*vec4(position,1.); float depth=-mv.z; float size=uBaseSize*uPixelRatio*clamp(1.25/depth,.8,4.); gl_PointSize=size; vStrength=clamp(1.6/depth,.2,1.); gl_Position=projectionMatrix*mv; }`,
+        fragmentShader:`precision mediump float; uniform vec3 uColor; uniform float uGlow; varying float vStrength; varying float vLambert; void main(){ vec2 c=gl_PointCoord-.5; float r2=dot(c,c); if(r2>.25) discard; float glow=smoothstep(.10,0.,r2)*uGlow; float shade=.45+.55*vLambert; vec3 col=uColor*(shade+.55*vStrength+glow); float alpha=smoothstep(.25,0.,r2); gl_FragColor=vec4(col,alpha); }`,
+        blending:THREE.AdditiveBlending, depthWrite:false, transparent:true, dithering:true
+      });
+      points=new THREE.Points(geom,material); faceGroup.add(points);
+
+      fitFaceToScreen();
+      selfTests();
+    }
+
+    function fitFaceToScreen(){
+      if(!points) return;
+      points.geometry.computeBoundingSphere();
+      const R = points.geometry.boundingSphere.radius * points.getWorldScale(new THREE.Vector3()).x;
+      const fov = THREE.MathUtils.degToRad(camera.fov);
+      const dist = (R / Math.tan(fov/2)) * 1.12; // 12% margin
+      camera.position.set(0, 0.02, dist);
+      camera.near = Math.max(0.01, dist - R*3.0);
+      camera.far  = dist + R*6.0;
+      camera.updateProjectionMatrix();
+    }
+
+    loadHeadMesh().then(buildPointFaceFrom).catch(e=>{ if(DEBUG) console.error(e); showToast('Failed to load face model (network/CORS).', true); });
+
+    // ===== Smooth theme (blend palettes over time) =====
+    const palettes=[
+      {bg0:'#071d14',bg1:'#0e2e20',accent:'#b6ffda',accent2:'#3cf2ff'},
+      {bg0:'#0b1020',bg1:'#111a2e',accent:'#ffd36e',accent2:'#ff8bd1'},
+      {bg0:'#100a1a',bg1:'#1a1024',accent:'#a7b0ff',accent2:'#7dffd6'}
+    ]; let palA=palettes[0], palB=palettes[1], palT=0, lastThemeSwitch=performance.now();
+    function hexToRgb(h){const m=h.replace('#','');return {r:parseInt(m.slice(0,2),16),g:parseInt(m.slice(2,4),16),b:parseInt(m.slice(4,6),16)};}
+    function mix(a,b,t){return Math.round(a+(b-a)*t)}
+    function rgbToHex({r,g,b}){return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`}
+    function lerpColor(ha,hb,t){const a=hexToRgb(ha), b=hexToRgb(hb); return rgbToHex({r:mix(a.r,b.r,t),g:mix(a.g,b.g,t),b:mix(a.b,b.b,t)})}
+    function applyBlendedTheme(t){
+      const bg0=lerpColor(palA.bg0,palB.bg0,t), bg1=lerpColor(palA.bg1,palB.bg1,t), accent=lerpColor(palA.accent,palB.accent,t), accent2=lerpColor(palA.accent2,palB.accent2,t);
+      const root=document.documentElement; root.style.setProperty('--bg0',bg0); root.style.setProperty('--bg1',bg1); root.style.setProperty('--accent',accent); root.style.setProperty('--accent2',accent2);
+      document.body.style.background = `radial-gradient(160vmax 160vmax at 70% -20%, ${bg1}, ${bg0})`;
+      if(points){ points.material.uniforms.uColor.value.set(accent); }
+      [bgFar,bgMid,bgNear].forEach((grp,i)=> grp.traverse(o=>{ if(o.isPoints){ o.material.color = new THREE.Color(i===2?accent2:accent); } if(o.isLineSegments){ o.material.color = new THREE.Color(accent); } }));
+    }
+
+    // ==== Scroll spring smoothing for face (based on real scroll position) ====
+    let rawProgress=0, smoothP=0, vel=0; const K=45, C=20;
+    function updateRawProgress(){ const dh=Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)-innerHeight; rawProgress = dh>0 ? (scrollY||pageYOffset)/dh : 0; }
+    addEventListener('scroll', updateRawProgress, {passive:true}); updateRawProgress();
+
+    const clock=new THREE.Clock();
+    function animate(){
+      requestAnimationFrame(animate);
+      const dt=Math.min(clock.getDelta(),0.033);
+
+      // Theme blending (~10s cross-fade)
+      const now=performance.now(); const elapsed=(now-lastThemeSwitch)/1000; const duration=10; const hold=2;
+      if(elapsed<=duration){ const t = (elapsed/duration); const t2=t*t*(3-2*t); applyBlendedTheme(t2); }
+      else if(elapsed>duration+hold){ lastThemeSwitch=now; palA=palB; palB=palettes[(palettes.indexOf(palB)+1)%palettes.length]; }
+
+      // Spring toward scroll target
+      const a = -K*(smoothP-rawProgress) - C*vel; vel += a*dt; smoothP += vel*dt;
+
+      const spin = smoothP * Math.PI * 1.0; // 180° total
+      const dolly = THREE.MathUtils.lerp(0.0, -0.12, smoothP);
+      const lift  = THREE.MathUtils.lerp(0.0,  0.06, smoothP);
+      faceGroup.rotation.set(0, spin, 0);
+      faceGroup.position.set(0, lift, dolly);
+
+      // BG parallax & drift
+      const px=Math.sin(smoothP*Math.PI*2);
+      bgFar.position.x = px*0.06;  bgFar.position.y = -smoothP*0.01;
+      bgMid.position.x = px*0.12;  bgMid.position.y = -smoothP*0.02;
+      bgNear.position.x= px*0.22;  bgNear.position.y= -smoothP*0.03;
+      if(constel && constel.material) constel.material.opacity = 0.08 + 0.06*(0.5+0.5*Math.sin(performance.now()*0.0015));
+      objGroup.children.forEach(m=>{ m.rotation.y += m.userData.vr; m.rotation.x += m.userData.vr*0.6; m.position.x += m.userData.vx*dt; m.position.y += m.userData.vy*dt; if(m.position.x>6) m.position.x=-6; if(m.position.x<-6) m.position.x=6; if(m.position.y>4) m.position.y=-4; if(m.position.y<-4) m.position.y=4; });
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    addEventListener('resize', ()=>{ renderer.setSize(innerWidth, innerHeight); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); fitFaceToScreen(); computeLayout(); });
+
+    // ===================== NAVIGATION — Jump only when 70% scroll intent =====================
+    const sections=[...document.querySelectorAll('main > section')];
+    let currentIndex=0; let snapping=false; let tops=[], mids=[];
+
+    function computeLayout(){ tops = sections.map(s=>s.offsetTop); mids = sections.map(s=> s.offsetTop + s.offsetHeight/2); }
+    function indexFromViewport(){ const center=(scrollY||pageYOffset)+innerHeight/2; let nearest=0,best=Infinity; for(let i=0;i<mids.length;i++){ const d=Math.abs(mids[i]-center); if(d<best){best=d; nearest=i;} } return nearest; }
+    computeLayout(); currentIndex=indexFromViewport();
+
+    function scrollToIndex(i){ i=Math.max(0,Math.min(sections.length-1,i)); if(i===currentIndex) return; currentIndex=i; snapping=true; sections[i].scrollIntoView({behavior:'smooth',block:'start'}); setTimeout(()=>{snapping=false;}, 900); }
+
+    // Anchor links still smooth
+    document.addEventListener('click', (e)=>{ const a=e.target.closest('a[href^="#"]'); if(!a) return; const id=a.getAttribute('href').slice(1); const el=document.getElementById(id); if(!el) return; e.preventDefault(); const idx=sections.findIndex(s=>s.id===id); if(idx!==-1) scrollToIndex(idx); });
+
+    // Keyboard navigation
+    addEventListener('keydown', (e)=>{
+      if(['ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); scrollToIndex(currentIndex+1); }
+      else if(['ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); scrollToIndex(currentIndex-1); }
+      else if(e.key==='Home'){ e.preventDefault(); scrollToIndex(0); }
+      else if(e.key==='End'){ e.preventDefault(); scrollToIndex(sections.length-1); }
+    }, {passive:false});
+
+    // Wheel/Touch gating — wait until user scrolls ~70% of a page, then jump; block partial scrolling
+    const TH = () => Math.round(innerHeight * 0.70);
+    let wheelAcc=0, lastWheelDir=0, wheelTimer=null;
+    addEventListener('wheel', (e)=>{
+      if(snapping) { e.preventDefault(); return; }
+      const dy=e.deltaY; const dir=Math.sign(dy);
+      if(dir===0) return;
+      if(lastWheelDir!==0 && dir!==lastWheelDir) wheelAcc=0; // direction changed -> reset
+      lastWheelDir=dir; wheelAcc += Math.abs(dy);
+      e.preventDefault(); // block native halfway scroll
+      clearTimeout(wheelTimer);
+      wheelTimer=setTimeout(()=>{ wheelAcc=0; }, 350); // small decay window
+      if(wheelAcc >= TH()){
+        scrollToIndex(currentIndex + (dir>0?1:-1));
+        wheelAcc=0;
+      }
+    }, {passive:false});
+
+    // Touch (mobile) gating
+    let touchStartY=0, touchAcc=0, touchDir=0;
+    addEventListener('touchstart', (e)=>{ if(snapping) return; touchStartY=e.touches[0].clientY; touchAcc=0; touchDir=0; }, {passive:true});
+    addEventListener('touchmove', (e)=>{
+      if(snapping) { e.preventDefault(); return; }
+      const y=e.touches[0].clientY; const dy=touchStartY - y; const dir=Math.sign(dy);
+      if(touchDir!==0 && dir!==touchDir){ touchAcc=0; touchStartY=y; }
+      touchDir=dir; touchAcc += Math.abs(dy);
+      e.preventDefault(); // prevent partial scroll
+      if(touchAcc >= TH()){
+        scrollToIndex(currentIndex + (dir>0?1:-1));
+        touchAcc=0; touchStartY=y;
+      }
+    }, {passive:false});
+
+    // Update currentIndex after programmatic scroll completes
+    addEventListener('scroll', ()=>{ if(snapping) return; currentIndex=indexFromViewport(); }, {passive:true});
+
+    // Reveal panels with rubber band on entry
+    const io=new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(e.isIntersecting) e.target.querySelector('.panel, .card')?.classList.add('reveal'); }); }, {threshold:.6});
+    sections.forEach(s=>io.observe(s));
+
+    // ===================== BLOG (Medium @shagihan) =====================
+    const postsEl = document.getElementById('posts');
+    async function loadMedium(){
+      const user = 'shagihan';
+      try{
+        const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://medium.com/feed/@'+user)}`;
+        const res = await fetch(url, {mode:'cors'});
+        if(!res.ok) throw new Error('rss2json http '+res.status);
+        const data = await res.json();
+        if(!data || !Array.isArray(data.items)) throw new Error('rss2json bad payload');
+        const items = data.items.slice(0,5).map(i=>({title:i.title, link:i.link, date:i.pubDate}));
+        renderPosts(items); return;
+      }catch(e){ if(DEBUG) console.warn('rss2json failed', e); }
+      try{
+        const res = await fetch('https://medium.com/@shagihan/latest?format=json');
+        if(!res.ok) throw new Error('medium http '+res.status);
+        const text = await res.text();
+        const json = JSON.parse(text.replace(/^\)\]\}while\(1\);\n?/,''));
+        const refs = json.payload.references.Post || {};
+        const arr = Object.values(refs).sort((a,b)=>b.firstPublishedAt-a.firstPublishedAt).slice(0,5)
+          .map(p=>({title:p.title, link:`https://medium.com/p/${p.uniqueSlug}`, date:new Date(p.firstPublishedAt).toISOString()}));
+        renderPosts(arr); return;
+      }catch(e){ if(DEBUG) console.warn('medium json failed', e); }
+      renderPosts([{title:'Sample Post — Replace with your Medium feed', link:'https://medium.com/@shagihan', date:new Date().toISOString()}]);
+    }
+    function renderPosts(items){ postsEl.innerHTML = items.map(p=>{ const d=new Date(p.date); const ds=isNaN(d)?'':d.toLocaleDateString(); return `<article class="post"><h3 class="sheen"><a href="${p.link}" target="_blank" rel="noopener">${p.title}</a></h3><time>${ds}</time></article>`; }).join(''); }
+    loadMedium();
+
+    // Footer year
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // ===================== Self‑tests (no noisy logs) =====================
+    function selfTests(){ try{ const results=[]; const assert=(n,c)=>results.push({n,p:!!c}); assert('selfTests exists', typeof selfTests==='function'); assert('points exists', !!points); assert('wheel gating active', typeof wheelAcc==='number' && typeof lastWheelDir==='number'); assert('touch gating active', true); }catch(e){} }
+  </script>
 </body>
 </html>
