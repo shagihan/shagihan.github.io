@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>It's me, Shanaka</title>
+    <title>3D Particle Portfolio</title>
     <style>
         body {
             margin: 0;
@@ -192,6 +192,23 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                overflow-y: auto; /* Enable scrolling on mobile */
+            }
+
+            #page-container {
+                /* Enable scroll snapping for a mobile-friendly experience */
+                scroll-snap-type: y mandatory;
+                overflow-y: scroll;
+                height: 100vh;
+                transform: none !important; /* Disable JS transform on mobile */
+            }
+            
+            .content-section {
+                scroll-snap-align: start; /* Snap each section to the top */
+                height: 100vh; /* Ensure sections take full viewport height */
+            }
+
             h1 { font-size: 2rem; }
             p { font-size: 1rem; }
             .content-wrapper { padding: 1.5rem; }
@@ -201,6 +218,7 @@
             .social-links-container { gap: 1.5rem; }
             .social-link svg { width: 35px; height: 35px; }
             .signature { font-size: 1.8rem; }
+            #scroll-indicator { display: none; } /* Hide desktop scroll indicator */
         }
 
     </style>
@@ -224,7 +242,7 @@
             <div class="content-wrapper" id="home-wrapper">
                 <img src="https://avatars3.githubusercontent.com/u/11259401?s=400&u=51032e514fcd603a20d7497cd113e75d338d0163&v=4" id="profile-pic" alt="A circular profile picture of Shagihan">
                 <h1>About Me</h1>
-                <p>Hello! I'm Shanaka As a dedicated and passionate individual working my way up in the software industry, I thrive on challenges and continuous learning. My journey through the Sri Lanka Institute of Information Technology equipped me with strong technical skills, but it's my leadership qualities and quick learning ability that truly drive me to build innovative and impactful solutions.</p>
+                <p>Hello! I'm Shagihan. As a dedicated and passionate individual working my way up in the software industry, I thrive on challenges and continuous learning. My journey through the Sri Lanka Institute of Information Technology equipped me with strong technical skills, but it's my leadership qualities and quick learning ability that truly drive me to build innovative and impactful solutions.</p>
                 <p class="signature">- Shagihan</p>
             </div>
         </div>
@@ -240,7 +258,7 @@
             <div class="content-wrapper">
                 <h1>Connect With Me</h1>
                 <div class="social-links-container">
-                    <a href="https://www.linkedin.com/in/shanaka-sandanayaka/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+                    <a href="https://www.linkedin.com/in/shagihan/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
                     <a href="https://github.com/shagihan" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a>
                     <a href="https://twitter.com/shagihan" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="X (formerly Twitter)"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.617l-5.21-6.817-6.022 6.817h-3.308l7.732-8.835-8.211-10.665h6.836l4.556 6.231 5.49-6.231zm-1.161 17.52h1.839l-10.125-13.9h-1.998l10.284 13.9z"/></svg></a>
                     <a href="https://medium.com/@shagihan" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Medium"><svg viewBox="0 0 24 24"><path d="M7.45,18.26H5.66V5.74H7.45ZM14,18.26h-.21l-3.4-8.34,3.4-4.18h.21V18.26Zm.88,0V5.74h4.15a4.26,4.26,0,0,1,1.5.25,2.18,2.18,0,0,1,1.17,1,2,2,0,0,1,.41,1.33,2.44,2.44,0,0,1-.57,1.74,3.33,3.33,0,0,1-1.5,1.15l2.54,6.81h-2L17.3,13.05H14.86V18.26Z"/></svg></a>
@@ -297,31 +315,23 @@
         particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         const particleMaterial = new THREE.PointsMaterial({ color: 0x42a5f5, size: 0.025, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
         points = new THREE.Points(particleGeometry, particleMaterial);
-        points.renderOrder = 1; // Render particles on top of meteors
+        points.renderOrder = 1;
         scene.add(points);
 
         // --- Subtle Meteor Shower using Cylinders ---
         const meteors = [];
-        const meteorCount = 40; // Reduced count for subtlety
+        const meteorCount = 40;
         const meteorMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false });
-        const meteorGeometry = new THREE.CylinderGeometry(0.01, 0.01, 1.0, 8); // Thinner and shorter
+        const meteorGeometry = new THREE.CylinderGeometry(0.01, 0.01, 1.0, 8);
         for (let i = 0; i < meteorCount; i++) {
             const meteor = new THREE.Mesh(meteorGeometry, meteorMaterial);
-            
-            meteor.velocity = new THREE.Vector3(
-                (Math.random() - 0.5) * 0.03,
-                -0.1 - Math.random() * 0.05, // Slower
-                0
-            );
-            
+            meteor.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.03, -0.1 - Math.random() * 0.05, 0);
             meteor.position.x = (Math.random() - 0.5) * 25;
             meteor.position.y = 10 + Math.random() * 10;
             meteor.position.z = (Math.random() - 0.5) * 15;
-            
             meteor.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), meteor.velocity.clone().normalize());
-            
             meteor.visible = false;
-            meteor.renderOrder = 0; // Render meteors behind particles
+            meteor.renderOrder = 0;
             meteors.push(meteor);
             scene.add(meteor);
         }
@@ -331,13 +341,14 @@
         let colorIndex = 0;
         setInterval(() => { colorIndex = (colorIndex + 1) % colors.length; }, 7000);
 
-        // --- Section-based Scroll Logic ---
+        // --- Unified Scroll Logic ---
         const pageContainer = document.getElementById('page-container');
         const scrollIndicator = document.getElementById('scroll-indicator');
         const sections = document.querySelectorAll('.content-section');
         const totalSections = sections.length;
         let currentSectionIndex = 0;
         let isAnimating = false;
+        const isMobile = window.innerWidth <= 768;
 
         function goToSection(index) {
             if (index < 0 || index >= totalSections || isAnimating) return;
@@ -348,17 +359,25 @@
             setTimeout(() => { isAnimating = false; }, 1200);
         }
 
-        window.addEventListener('wheel', event => {
-            if (isAnimating) return;
-            if (event.deltaY > 0) goToSection(currentSectionIndex + 1);
-            else goToSection(currentSectionIndex - 1);
-        });
-        window.addEventListener('keydown', event => {
-            if (isAnimating) return;
-            if (event.key === 'ArrowDown') goToSection(currentSectionIndex + 1);
-            else if (event.key === 'ArrowUp') goToSection(currentSectionIndex - 1);
-        });
-
+        if (!isMobile) {
+            window.addEventListener('wheel', event => {
+                if (isAnimating) return;
+                if (event.deltaY > 0) goToSection(currentSectionIndex + 1);
+                else goToSection(currentSectionIndex - 1);
+            });
+            window.addEventListener('keydown', event => {
+                if (isAnimating) return;
+                if (event.key === 'ArrowDown') goToSection(currentSectionIndex + 1);
+                else if (event.key === 'ArrowUp') goToSection(currentSectionIndex - 1);
+            });
+        } else {
+            pageContainer.addEventListener('scroll', () => {
+                const scrollPos = pageContainer.scrollTop;
+                const sectionHeight = window.innerHeight;
+                currentSectionIndex = Math.round(scrollPos / sectionHeight);
+            });
+        }
+        
         // --- Animation Loop ---
         const clock = new THREE.Clock();
         const mouse = new THREE.Vector2();
@@ -371,10 +390,16 @@
             const targetColor = colors[colorIndex];
             points.material.color.lerp(targetColor, 0.03);
 
-            // --- Particle Animation Logic ---
-            const isLastSection = currentSectionIndex === totalSections - 1;
-            targetScrollPercent = currentSectionIndex / (totalSections - 1);
+            // Calculate target scroll percent based on device
+            if (isMobile) {
+                const scrollableHeight = pageContainer.scrollHeight - pageContainer.clientHeight;
+                targetScrollPercent = pageContainer.scrollTop / scrollableHeight;
+            } else {
+                targetScrollPercent = currentSectionIndex / (totalSections - 1);
+            }
             currentScrollPercent = THREE.MathUtils.lerp(currentScrollPercent, targetScrollPercent, 0.07);
+
+            const isLastSection = currentSectionIndex === totalSections - 1;
             const posArray = points.geometry.attributes.position.array;
             for (let i = 0; i < particleCount; i++) {
                 const i3 = i * 3;
@@ -382,6 +407,7 @@
                 const explodedY = originalPositions[i3 + 1] + randomDirections[i3 + 1];
                 const explodedZ = originalPositions[i3 + 2] + randomDirections[i3 + 2];
                 let currentX, currentY, currentZ;
+
                 if (isLastSection) {
                     const prevScrollPercent = (totalSections - 2) / (totalSections - 1);
                     const prevStateX = THREE.MathUtils.lerp(originalPositions[i3], explodedX, prevScrollPercent);
@@ -411,7 +437,6 @@
             meteors.forEach(meteor => {
                 meteor.visible = showMeteors;
                 if (showMeteors) {
-                    // Meteors stay white, no color lerp
                     meteor.position.x += meteor.velocity.x;
                     meteor.position.y += meteor.velocity.y;
                     meteor.position.z += meteor.velocity.z;
@@ -434,10 +459,8 @@
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         });
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            // Simple reload on resize can be a robust way to handle mobile orientation changes
+            window.location.reload();
         });
         async function fetchMediumFeed() {
             const mediumUsername = 'shagihan';
