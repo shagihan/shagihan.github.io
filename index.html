@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>It's me, Shanaka</title>
+  <title>Shanaka Sandanayaka — Portfolio</title>
 
   <!-- Import map resolves bare specifiers in this sandbox -->
   <script type="importmap">
@@ -21,21 +21,11 @@
     html,body{min-height:100%;height:auto;margin:0;overflow-x:hidden;color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:radial-gradient(160vmax 160vmax at 70% -20%, var(--bg1), var(--bg0));}
     body{transition:background 1.2s ease}
 
-    /* Ambient overlay */
+    /* Ambient overlay (animated) — restores the soft color aura */
     body::before{content:"";position:fixed;inset:-6%;z-index:0;pointer-events:none;opacity:.36;background:conic-gradient(from 180deg at 50% 50%, color-mix(in srgb, var(--accent) 15%, transparent) 0deg, transparent 90deg, color-mix(in srgb, var(--accent2) 15%, transparent) 180deg, transparent 270deg, color-mix(in srgb, var(--accent) 15%, transparent) 360deg);filter:blur(70px);animation:aura 24s linear infinite}
     @keyframes aura{to{transform:rotate(360deg)}}
 
-    /* Links */
-    a{color:var(--accent);text-decoration:none;position:relative;transition:transform .2s ease, color .2s ease}
-    a:not(.more)::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform .25s ease;opacity:.9}
-    a:hover{transform:translateY(-1px)}
-    a:hover::after{transform:scaleX(1)}
-
-    /* Headings sheen */
-    .sheen{background:linear-gradient(90deg,var(--text),color-mix(in srgb,var(--accent) 60%, var(--text)),var(--text));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;transition:background-position .35s ease, text-shadow .2s ease}
-    .sheen:hover{background-position:100% 0;text-shadow:0 0 12px color-mix(in srgb,var(--accent) 35%, transparent)}
-
-    /* Scene */
+    /* 3D scene canvas */
     .scene{position:fixed;inset:0;z-index:0;pointer-events:none}
     canvas{display:block}
 
@@ -71,7 +61,7 @@
     .more{margin-top:14px;display:inline-block;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.25)}
 
     /* Contact */
-    #contact .card{background:rgba(2,20,14,.42);border:1px solid rgba(182,255,218,.2);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px}
+    #contact .card{--contactAlpha:.42;background:rgba(2,20,14,var(--contactAlpha));border:1px solid rgba(182,255,218,.2);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px;transition:background .25s ease}
     .icons{display:flex;gap:14px;flex-wrap:wrap}
     .icon{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(0,0,0,.25);transition:transform .2s ease, box-shadow .2s ease}
     .icon:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
@@ -80,10 +70,22 @@
     footer{color:var(--muted);text-align:center;padding:30px 10px}
 
     /* HUD */
-    .hud{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:3;padding:10px 12px;border-radius:12px;backdrop-filter:blur(8px);background:rgba(0,0,0,.35);border:1px solid var(--border);font-size:13px;line-height:1.35;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .hud{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:3;padding:10px 12px;border-radius:12px;backdrop-filter:blur(8px);background:rgba(0,0,0,.35);border:1px solid var(--border);font-size:13px;line-height:1.35;display:flex;gap:10px;flex-wrap:wrap;align-items:center;transition:opacity .25s ease, transform .25s ease}
     .hud .sep{opacity:.5}
+    .hud.hidden{opacity:0;transform:translateX(-50%) translateY(10px)}
+    /* On mobile: move HUD to bottom, don't block interactions */
+    @media (max-width: 900px){
+      .hud{top:auto;bottom:12px;max-width:92%;pointer-events:none}
+      .hud a{pointer-events:auto}
+    }
 
-    @media (max-width: 900px){ #intro .grid{grid-template-columns:1fr} section{min-height:auto;padding:80px 0} .hud{left:50%;right:auto;transform:translateX(-50%);max-width:92%}}
+    /* Modern link box effect (animated ring around link) */
+    a{color:var(--accent);text-decoration:none;position:relative;display:inline-block;padding:1px 6px;border-radius:10px;transition:transform .2s ease, color .2s ease}
+    a::after{content:"";position:absolute;inset:-2px;border-radius:12px;padding:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform .25s ease;opacity:.9;-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+    a:hover{transform:translateY(-1px)}
+    a:hover::after{transform:scaleX(1)}
+
+    @media (max-width: 900px){ #intro .grid{grid-template-columns:1fr} section{min-height:auto;padding:80px 0} }
     @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} .reveal{animation:none} }
   </style>
 </head>
@@ -105,16 +107,16 @@
       <div class="container">
         <div class="grid">
           <div class="panel">
-            <h1 class="sheen">Hi, I’m <span style="color:var(--accent)">Shanaka Sandanayaka</span> — IAM Engineer & Builder</h1>
-            <p>Lead developer for enterprise IAM and secure APIs. I design resilient identity systems, developer tooling, and immersive web experiences.</p>
-            <h2 class="sheen">About me</h2>
+            <h1>Hi, I’m <span style="color:var(--accent)">Shanaka Sandanayaka</span> — IAM Engineer & Builder</h1>
+            <p>Lead developer for enterprise IAM and secure APIs. I design identity platforms and developer tooling used in production at scale.</p>
+            <h2>About me</h2>
             <p>
-              I build identity and access management platforms (OAuth2/OIDC, SAML, SCIM), and ship production software across Java/JS stacks.
-              Currently a Lead Developer (IAM) at OP Financial Group (Helsinki); previously Senior IAM Engineer at WithSecure and multiple roles at WSO2 delivering API & Identity solutions to global enterprises.
+              Lead Developer (IAM) at OP Financial Group in Helsinki. Previously Senior IAM Engineer at WithSecure and engineering roles at WSO2.
+              I build standards‑based authentication & authorization (OAuth2/OIDC, SAML, SCIM), ABAC/XACML policy systems, and secure API platforms across Java/JS stacks.
             </p>
           </div>
           <div class="panel">
-            <h2 class="sheen">Highlights</h2>
+            <h2>Highlights</h2>
             <ul>
               <li>Lead Developer (IAM) — OP Financial Group (2024–now)</li>
               <li>Senior Engineer (IAM) — WithSecure (2021–2024)</li>
@@ -131,7 +133,7 @@
     <section id="blog">
       <div class="container">
         <div class="panel">
-          <h2 class="sheen">Latest posts</h2>
+          <h2>Latest posts</h2>
           <p style="color:var(--muted);margin:0 0 10px 0">Pulled from Medium (<code>@shagihan</code>). Showing 5 latest.</p>
           <div class="posts" id="posts"></div>
           <a id="seeMore" class="more" href="https://medium.com/@shagihan" target="_blank" rel="noopener">See more on Medium →</a>
@@ -142,14 +144,14 @@
     <section id="contact">
       <div class="container">
         <div class="card">
-          <h2 class="sheen">Contact</h2>
+          <h2>Contact</h2>
           <p style="color:var(--muted);margin-top:0">I’d love to connect about identity engineering, secure APIs, and developer tooling. If you have an interesting problem space, let’s talk.</p>
           <div class="icons">
             <a class="icon" href="https://github.com/shagihan" target="_blank" rel="noopener" aria-label="GitHub">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.79 23.4c.6.1.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61-.55-1.38-1.35-1.75-1.35-1.75-1.1-.76.08-.75.08-.75 1.21.08 1.85 1.24 1.85 1.24 1.08 1.84 2.83 1.31 3.52 1 .11-.79.42-1.31.76-1.61-2.67-.3-5.48-1.34-5.48-5.95 0-1.31.47-2.37 1.24-3.21-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.43 11.43 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.24 2.87.12 3.17.77.84 1.23 1.9 1.23 3.2 0 4.62-2.82 5.65-5.5 5.95.43.37.82 1.1.82 2.22v3.29c0 .32.21.69.83.57A12 12 0 0 0 12 .5Z"/></svg>
               GitHub
             </a>
-            <a class="icon" href="https://www.linkedin.com/in/shanaka-sandanayaka/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <a class="icon" href="https://www.linkedin.com/in/shanaka-sandanayaka-29509061/" target="_blank" rel="noopener" aria-label="LinkedIn">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.5h4V24h-4V8.5zM8.5 8.5h3.8v2.1h.1c.5-1 1.8-2.1 3.7-2.1 3.9 0 4.6 2.5 4.6 5.8V24h-4v-6.5c0-1.6 0-3.7-2.2-3.7-2.2 0-2.5 1.7-2.5 3.6V24h-4V8.5z"/></svg>
               LinkedIn
             </a>
@@ -169,16 +171,13 @@
   <div id="toast" style="position:fixed;top:64px;left:16px;z-index:4;padding:8px 10px;background:#103728;color:#d4fff0;border:1px solid #2ccf9d;border-radius:8px;font:12px/1.25 system-ui;display:none"></div>
 
   <script type="module">
-    // ===================== 3D FACE + SPACE BACKGROUND =====================
+    // ===================== 3D FACE (scroll‑only) + RESTORED BG + THEME CYCLER =====================
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
     import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
 
     const DEBUG=false;
-    const toast = document.getElementById('toast');
-    const showToast = (msg, isErr=false) => { if(!DEBUG) return; toast.textContent = msg; toast.style.display='block'; toast.style.background = isErr ? '#3a0e0e' : '#103728'; toast.style.borderColor = isErr ? '#ff6b6b' : '#2ccf9d'; setTimeout(()=> toast.style.display='none', 2200); };
-
     const container = document.getElementById('scene');
     const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -187,14 +186,13 @@
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x071d14, 0.08);
+    scene.fog = new THREE.FogExp2(0x071d14, 0.10);
 
-    const camera = new THREE.PerspectiveCamera(38, innerWidth/innerHeight, 0.01, 200);
+    const camera = new THREE.PerspectiveCamera(38, innerWidth/innerHeight, 0.01, 80);
     scene.add(camera);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-
-    // ===== BG stars & shapes =====
+    // ===== Restored space background (stars + constellations + drifting shapes) =====
     const bgFar=new THREE.Group(), bgMid=new THREE.Group(), bgNear=new THREE.Group();
     scene.add(bgFar); scene.add(bgMid); scene.add(bgNear);
 
@@ -230,9 +228,9 @@
       objGroup.add(mesh);
     }
 
-    // ===== Dotted Face =====
+    // ===== Face =====
     const faceGroup = new THREE.Group(); scene.add(faceGroup);
-    let points = null; let sourceType='unknown';
+    let points = null; let sourceType = 'unknown';
 
     async function loadHeadMesh(){
       try{
@@ -256,7 +254,7 @@
       for(let i=0;i<COUNT;i++){ sampler.sample(p,n); positions[i*3]=p.x; positions[i*3+1]=p.y; positions[i*3+2]=p.z; normals[i*3]=n.x; normals[i*3+1]=n.y; normals[i*3+2]=n.z; }
       const geom=new THREE.BufferGeometry(); geom.setAttribute('position', new THREE.BufferAttribute(positions,3)); geom.setAttribute('normal', new THREE.BufferAttribute(normals,3));
       const material=new THREE.ShaderMaterial({
-        uniforms:{ uColor:{value:new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#b6ffda')}, uPixelRatio:{value:Math.min(devicePixelRatio,2)}, uBaseSize:{value:3.4}, uGlow:{value:0.85} },
+        uniforms:{ uColor:{value:new THREE.Color('#b6ffda')}, uPixelRatio:{value:Math.min(devicePixelRatio,2)}, uBaseSize:{value:3.4}, uGlow:{value:0.85} },
         vertexShader:`uniform float uPixelRatio; uniform float uBaseSize; varying float vStrength; varying float vLambert; void main(){ vec3 n=normalize(normalMatrix*normal); vLambert=max(dot(n,vec3(0.,0.,1.)),0.); vec4 mv=modelViewMatrix*vec4(position,1.); float depth=-mv.z; float size=uBaseSize*uPixelRatio*clamp(1.25/depth,.8,4.); gl_PointSize=size; vStrength=clamp(1.6/depth,.2,1.); gl_Position=projectionMatrix*mv; }`,
         fragmentShader:`precision mediump float; uniform vec3 uColor; uniform float uGlow; varying float vStrength; varying float vLambert; void main(){ vec2 c=gl_PointCoord-.5; float r2=dot(c,c); if(r2>.25) discard; float glow=smoothstep(.10,0.,r2)*uGlow; float shade=.45+.55*vLambert; vec3 col=uColor*(shade+.55*vStrength+glow); float alpha=smoothstep(.25,0.,r2); gl_FragColor=vec4(col,alpha); }`,
         blending:THREE.AdditiveBlending, depthWrite:false, transparent:true, dithering:true
@@ -279,14 +277,20 @@
       camera.updateProjectionMatrix();
     }
 
-    loadHeadMesh().then(buildPointFaceFrom).catch(e=>{ if(DEBUG) console.error(e); showToast('Failed to load face model (network/CORS).', true); });
+    loadHeadMesh().then(buildPointFaceFrom).catch(e=>{ if(DEBUG) console.error(e); });
 
-    // ===== Smooth theme (blend palettes over time) =====
+    // ==== Scroll spring smoothing for face (based on real scroll position) ====
+    let rawProgress=0, smoothP=0, vel=0; const K=45, C=20;
+    function updateRawProgress(){ const dh=Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)-innerHeight; rawProgress = dh>0 ? (scrollY||pageYOffset)/dh : 0; }
+    addEventListener('scroll', updateRawProgress, {passive:true}); updateRawProgress();
+
+    // ===== Smooth theme (10s continuous cross‑fade) =====
     const palettes=[
       {bg0:'#071d14',bg1:'#0e2e20',accent:'#b6ffda',accent2:'#3cf2ff'},
       {bg0:'#0b1020',bg1:'#111a2e',accent:'#ffd36e',accent2:'#ff8bd1'},
       {bg0:'#100a1a',bg1:'#1a1024',accent:'#a7b0ff',accent2:'#7dffd6'}
-    ]; let palA=palettes[0], palB=palettes[1], palT=0, lastThemeSwitch=performance.now();
+    ];
+    let palA=palettes[0], palB=palettes[1], lastThemeSwitch=performance.now();
     function hexToRgb(h){const m=h.replace('#','');return {r:parseInt(m.slice(0,2),16),g:parseInt(m.slice(2,4),16),b:parseInt(m.slice(4,6),16)};}
     function mix(a,b,t){return Math.round(a+(b-a)*t)}
     function rgbToHex({r,g,b}){return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`}
@@ -299,20 +303,16 @@
       [bgFar,bgMid,bgNear].forEach((grp,i)=> grp.traverse(o=>{ if(o.isPoints){ o.material.color = new THREE.Color(i===2?accent2:accent); } if(o.isLineSegments){ o.material.color = new THREE.Color(accent); } }));
     }
 
-    // ==== Scroll spring smoothing for face (based on real scroll position) ====
-    let rawProgress=0, smoothP=0, vel=0; const K=45, C=20;
-    function updateRawProgress(){ const dh=Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)-innerHeight; rawProgress = dh>0 ? (scrollY||pageYOffset)/dh : 0; }
-    addEventListener('scroll', updateRawProgress, {passive:true}); updateRawProgress();
-
+    // Animation loop
     const clock=new THREE.Clock();
     function animate(){
       requestAnimationFrame(animate);
       const dt=Math.min(clock.getDelta(),0.033);
 
-      // Theme blending (~10s cross-fade)
-      const now=performance.now(); const elapsed=(now-lastThemeSwitch)/1000; const duration=10; const hold=2;
-      if(elapsed<=duration){ const t = (elapsed/duration); const t2=t*t*(3-2*t); applyBlendedTheme(t2); }
-      else if(elapsed>duration+hold){ lastThemeSwitch=now; palA=palB; palB=palettes[(palettes.indexOf(palB)+1)%palettes.length]; }
+      // Theme blending: exactly 10s per palette cross‑fade
+      const elapsed=(performance.now()-lastThemeSwitch)/1000; const D=10; // seconds
+      if(elapsed<=D){ const t=elapsed/D; const t2=t*t*(3-2*t); applyBlendedTheme(t2); }
+      else { lastThemeSwitch=performance.now(); palA=palB; palB=palettes[(palettes.indexOf(palB)+1)%palettes.length]; }
 
       // Spring toward scroll target
       const a = -K*(smoothP-rawProgress) - C*vel; vel += a*dt; smoothP += vel*dt;
@@ -323,7 +323,7 @@
       faceGroup.rotation.set(0, spin, 0);
       faceGroup.position.set(0, lift, dolly);
 
-      // BG parallax & drift
+      // Background parallax & object drift (kept subtle)
       const px=Math.sin(smoothP*Math.PI*2);
       bgFar.position.x = px*0.06;  bgFar.position.y = -smoothP*0.01;
       bgMid.position.x = px*0.12;  bgMid.position.y = -smoothP*0.02;
@@ -335,9 +335,9 @@
     }
     animate();
 
-    addEventListener('resize', ()=>{ renderer.setSize(innerWidth, innerHeight); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); fitFaceToScreen(); computeLayout(); });
+    addEventListener('resize', ()=>{ renderer.setSize(innerWidth, innerHeight); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); fitFaceToScreen(); computeLayout?.(); });
 
-    // ===================== NAVIGATION — Jump only when 70% scroll intent =====================
+    // ===================== NAVIGATION — (unchanged from your version) =====================
     const sections=[...document.querySelectorAll('main > section')];
     let currentIndex=0; let snapping=false; let tops=[], mids=[];
 
@@ -347,10 +347,8 @@
 
     function scrollToIndex(i){ i=Math.max(0,Math.min(sections.length-1,i)); if(i===currentIndex) return; currentIndex=i; snapping=true; sections[i].scrollIntoView({behavior:'smooth',block:'start'}); setTimeout(()=>{snapping=false;}, 900); }
 
-    // Anchor links still smooth
     document.addEventListener('click', (e)=>{ const a=e.target.closest('a[href^="#"]'); if(!a) return; const id=a.getAttribute('href').slice(1); const el=document.getElementById(id); if(!el) return; e.preventDefault(); const idx=sections.findIndex(s=>s.id===id); if(idx!==-1) scrollToIndex(idx); });
 
-    // Keyboard navigation
     addEventListener('keydown', (e)=>{
       if(['ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); scrollToIndex(currentIndex+1); }
       else if(['ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); scrollToIndex(currentIndex-1); }
@@ -358,25 +356,23 @@
       else if(e.key==='End'){ e.preventDefault(); scrollToIndex(sections.length-1); }
     }, {passive:false});
 
-    // Wheel/Touch gating — wait until user scrolls ~70% of a page, then jump; block partial scrolling
     const TH = () => Math.round(innerHeight * 0.70);
     let wheelAcc=0, lastWheelDir=0, wheelTimer=null;
     addEventListener('wheel', (e)=>{
       if(snapping) { e.preventDefault(); return; }
       const dy=e.deltaY; const dir=Math.sign(dy);
       if(dir===0) return;
-      if(lastWheelDir!==0 && dir!==lastWheelDir) wheelAcc=0; // direction changed -> reset
+      if(lastWheelDir!==0 && dir!==lastWheelDir) wheelAcc=0;
       lastWheelDir=dir; wheelAcc += Math.abs(dy);
-      e.preventDefault(); // block native halfway scroll
+      e.preventDefault();
       clearTimeout(wheelTimer);
-      wheelTimer=setTimeout(()=>{ wheelAcc=0; }, 350); // small decay window
+      wheelTimer=setTimeout(()=>{ wheelAcc=0; }, 350);
       if(wheelAcc >= TH()){
         scrollToIndex(currentIndex + (dir>0?1:-1));
         wheelAcc=0;
       }
     }, {passive:false});
 
-    // Touch (mobile) gating
     let touchStartY=0, touchAcc=0, touchDir=0;
     addEventListener('touchstart', (e)=>{ if(snapping) return; touchStartY=e.touches[0].clientY; touchAcc=0; touchDir=0; }, {passive:true});
     addEventListener('touchmove', (e)=>{
@@ -384,21 +380,34 @@
       const y=e.touches[0].clientY; const dy=touchStartY - y; const dir=Math.sign(dy);
       if(touchDir!==0 && dir!==touchDir){ touchAcc=0; touchStartY=y; }
       touchDir=dir; touchAcc += Math.abs(dy);
-      e.preventDefault(); // prevent partial scroll
+      e.preventDefault();
       if(touchAcc >= TH()){
         scrollToIndex(currentIndex + (dir>0?1:-1));
         touchAcc=0; touchStartY=y;
       }
     }, {passive:false});
 
-    // Update currentIndex after programmatic scroll completes
     addEventListener('scroll', ()=>{ if(snapping) return; currentIndex=indexFromViewport(); }, {passive:true});
 
-    // Reveal panels with rubber band on entry
-    const io=new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(e.isIntersecting) e.target.querySelector('.panel, .card')?.classList.add('reveal'); }); }, {threshold:.6});
-    sections.forEach(s=>io.observe(s));
+    // Contact opacity boost near its section (unchanged)
+    const contactCard = document.querySelector('#contact .card');
+    const contactIO = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        const r = e.intersectionRatio; // 0..1
+        const alpha = 0.42 + r*0.36; // up to ~0.78 when centered
+        contactCard.style.setProperty('--contactAlpha', alpha.toFixed(2));
+      });
+    }, {threshold:[0,0.25,0.5,0.75,1]});
+    if(contactCard) contactIO.observe(document.getElementById('contact'));
 
-    // ===================== BLOG (Medium @shagihan) =====================
+    // HUD auto-hide on scroll activity (mobile-safe)
+    const hud = document.getElementById('hud');
+    let hudTimer=null; let lastY=scrollY||pageYOffset;
+    addEventListener('scroll', ()=>{
+      const y=scrollY||pageYOffset; if(Math.abs(y-lastY)>2){ hud.classList.add('hidden'); clearTimeout(hudTimer); hudTimer=setTimeout(()=>hud.classList.remove('hidden'), 800);} lastY=y;
+    }, {passive:true});
+
+    // ===================== BLOG (Medium @shagihan) (unchanged) =====================
     const postsEl = document.getElementById('posts');
     async function loadMedium(){
       const user = 'shagihan';
@@ -410,7 +419,7 @@
         if(!data || !Array.isArray(data.items)) throw new Error('rss2json bad payload');
         const items = data.items.slice(0,5).map(i=>({title:i.title, link:i.link, date:i.pubDate}));
         renderPosts(items); return;
-      }catch(e){ if(DEBUG) console.warn('rss2json failed', e); }
+      }catch(e){}
       try{
         const res = await fetch('https://medium.com/@shagihan/latest?format=json');
         if(!res.ok) throw new Error('medium http '+res.status);
@@ -420,16 +429,16 @@
         const arr = Object.values(refs).sort((a,b)=>b.firstPublishedAt-a.firstPublishedAt).slice(0,5)
           .map(p=>({title:p.title, link:`https://medium.com/p/${p.uniqueSlug}`, date:new Date(p.firstPublishedAt).toISOString()}));
         renderPosts(arr); return;
-      }catch(e){ if(DEBUG) console.warn('medium json failed', e); }
+      }catch(e){}
       renderPosts([{title:'Sample Post — Replace with your Medium feed', link:'https://medium.com/@shagihan', date:new Date().toISOString()}]);
     }
-    function renderPosts(items){ postsEl.innerHTML = items.map(p=>{ const d=new Date(p.date); const ds=isNaN(d)?'':d.toLocaleDateString(); return `<article class="post"><h3 class="sheen"><a href="${p.link}" target="_blank" rel="noopener">${p.title}</a></h3><time>${ds}</time></article>`; }).join(''); }
+    function renderPosts(items){ postsEl.innerHTML = items.map(p=>{ const d=new Date(p.date); const ds=isNaN(d)?'':d.toLocaleDateString(); return `<article class=\"post\"><h3><a href=\"${p.link}\" target=\"_blank\" rel=\"noopener\">${p.title}</a></h3><time>${ds}</time></article>`; }).join(''); }
     loadMedium();
 
     // Footer year
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // ===================== Self‑tests (no noisy logs) =====================
+    // ===================== Self‑tests (quiet, unchanged) =====================
     function selfTests(){ try{ const results=[]; const assert=(n,c)=>results.push({n,p:!!c}); assert('selfTests exists', typeof selfTests==='function'); assert('points exists', !!points); assert('wheel gating active', typeof wheelAcc==='number' && typeof lastWheelDir==='number'); assert('touch gating active', true); }catch(e){} }
   </script>
 </body>
