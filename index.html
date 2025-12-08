@@ -1,445 +1,795 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shanaka Sandanayaka — Portfolio</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shanaka Sandanayaka | Experience Identity</title>
+    
+    <!-- Fonts: Inter (General) & Space Mono (Tech/Labels) & Syne (Headlines) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 
-  <!-- Import map resolves bare specifiers in this sandbox -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  <style>
-    :root { --bg0:#071d14; --bg1:#0e2e20; --accent:#b6ffda; --accent2:#3cf2ff; --text:#e8fff6; --muted:#a5bfb4; --border:rgba(182,255,218,.25); }
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #EAEAEA;
+            --accent-color: #3b82f6;
+            --grid-line: #333333;
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --header-height: 60px;
+        }
 
-    html,body{min-height:100%;height:auto;margin:0;overflow-x:hidden;color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:radial-gradient(160vmax 160vmax at 70% -20%, var(--bg1), var(--bg0));}
-    body{transition:background 1.2s ease}
+        [data-theme="light"] {
+            --bg-color: #F0F0F0;
+            --text-color: #1a1a1a;
+            --accent-color: #000000;
+            --grid-line: #C0C0C0;
+        }
 
-    /* Ambient overlay (animated) — restores the soft color aura */
-    body::before{content:"";position:fixed;inset:-6%;z-index:0;pointer-events:none;opacity:.36;background:conic-gradient(from 180deg at 50% 50%, color-mix(in srgb, var(--accent) 15%, transparent) 0deg, transparent 90deg, color-mix(in srgb, var(--accent2) 15%, transparent) 180deg, transparent 270deg, color-mix(in srgb, var(--accent) 15%, transparent) 360deg);filter:blur(70px);animation:aura 24s linear infinite}
-    @keyframes aura{to{transform:rotate(360deg)}}
+        html {
+            scroll-behavior: smooth;
+        }
 
-    /* 3D scene canvas */
-    .scene{position:fixed;inset:0;z-index:0;pointer-events:none}
-    canvas{display:block}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            cursor: default;
+        }
 
-    /* Sections */
-    main{position:relative;z-index:1}
-    section{min-height:100svh;display:flex;align-items:center}
-    .container{width:min(1100px,92%);margin:0 auto}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            width: 100vw;
+            transition: background 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
 
-    /* Cards */
-    .panel{background:rgba(2,20,14,.42);border:1px solid rgba(182,255,218,.2);border-radius:20px;padding:28px 28px 22px 28px;backdrop-filter:blur(8px);box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateZ(0);transition:transform .25s cubic-bezier(.2,1.1,.2,1), box-shadow .25s ease}
-    .panel:hover{transform:translateY(-2px);box-shadow:0 30px 80px rgba(0,0,0,.45)}
-    .panel h1{font-size:clamp(28px,5vw,48px);margin:0 0 8px}
-    .panel p{color:var(--muted);margin:8px 0 0}
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; }
+        .mono { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .big-text { font-size: clamp(3rem, 8vw, 9rem); line-height: 0.85; letter-spacing: -0.02em; }
+        
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+        
+        /* --- UTILS --- */
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .flex-between { display: flex; align-items: center; justify-content: space-between; }
 
-    /* Reveal */
-    .reveal{animation:rubber .9s cubic-bezier(.2,1.1,.2,1) both}
-    @keyframes rubber{0%{transform:scale(.94) translateY(10px)}60%{transform:scale(1.03) translateY(-2px)}100%{transform:scale(1) translateY(0)}}
+        /* --- HEADER --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            z-index: 100;
+            background: var(--bg-color);
+            border-bottom: 1px solid var(--grid-line);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr; /* Default desktop grid */
+            align-items: center;
+            padding: 0 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            transition: border-color 0.5s ease, background 0.5s ease;
+        }
 
-    /* Layout */
-    #intro .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:28px}
-    #intro h2{margin:16px 0 8px 0}
-    #intro ul{margin:6px 0 0 16px;line-height:1.6}
+        .header-center { text-align: center; border-left: 1px solid var(--grid-line); border-right: 1px solid var(--grid-line); height: 100%; display: flex; align-items: center; justify-content: center; transition: border-color 0.5s ease; }
+        .header-right { justify-self: end; display: flex; gap: 2rem; }
+        
+        .theme-btn { 
+            background: none; border: 1px solid var(--grid-line); color: var(--text-color); 
+            padding: 2px 8px; font-family: var(--font-mono); cursor: pointer; text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+        .theme-btn:hover { background: var(--text-color); color: var(--bg-color); }
 
-    /* Blog */
-    #blog h2{font-size:28px;margin:0 0 12px 0}
-    .posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-    .post{position:relative;display:flex;flex-direction:column;gap:8px;background:rgba(2,20,14,.42);border:1px solid rgba(182,255,218,.2);border-radius:16px;padding:16px;min-height:140px;transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease}
-    .post::before{content:"";position:absolute;inset:-1px;border-radius:16px;padding:1px;background:linear-gradient(120deg,transparent, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%);-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .25s ease}
-    .post:hover{transform:translateY(-3px) scale(1.02); box-shadow:0 20px 60px rgba(0,0,0,.4); border-color: color-mix(in srgb,var(--accent) 30%, transparent)}
-    .post:hover::before{opacity:1}
-    .post h3{margin:0;font-size:16px}
-    .post time{font-size:12px;color:var(--muted)}
-    .more{margin-top:14px;display:inline-block;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.25)}
+        /* --- HERO --- */
+        #hero {
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height)); /* Changed to min-height for safety */
+            width: 100%;
+            display: grid;
+            grid-template-columns: 60% 40%;
+            border-bottom: 1px solid var(--grid-line);
+            transition: border-color 0.5s ease;
+        }
 
-    /* Contact */
-    #contact .card{--contactAlpha:.42;background:rgba(2,20,14,var(--contactAlpha));border:1px solid rgba(182,255,218,.2);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px;transition:background .25s ease}
-    .icons{display:flex;gap:14px;flex-wrap:wrap}
-    .icon{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(0,0,0,.25);transition:transform .2s ease, box-shadow .2s ease}
-    .icon:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
-    .sig{margin-top:16px;font-family:"Segoe Script","Bradley Hand",cursive;font-size:18px;opacity:.9}
+        .hero-left {
+            position: relative;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid var(--grid-line);
+            z-index: 2;
+            transition: border-color 0.5s ease;
+        }
 
-    footer{color:var(--muted);text-align:center;padding:30px 10px}
+        /* WebGL Container */
+        #canvas-wrapper {
+            width: 100%;
+            height: 100%;
+            min-height: 400px; /* Ensure visibility on mobile */
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+        }
+        #gl-canvas { width: 100%; height: 100%; object-fit: cover; }
 
-    /* HUD */
-    .hud{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:3;padding:10px 12px;border-radius:12px;backdrop-filter:blur(8px);background:rgba(0,0,0,.35);border:1px solid var(--border);font-size:13px;line-height:1.35;display:flex;gap:10px;flex-wrap:wrap;align-items:center;transition:opacity .25s ease, transform .25s ease}
-    .hud .sep{opacity:.5}
-    .hud.hidden{opacity:0;transform:translateX(-50%) translateY(10px)}
-    /* On mobile: move HUD to bottom, don't block interactions */
-    @media (max-width: 900px){
-      .hud{top:auto;bottom:12px;max-width:92%;pointer-events:none}
-      .hud a{pointer-events:auto}
-    }
+        /* --- MARQUEE --- */
+        .marquee-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--grid-line);
+            padding: 1rem 0;
+            background: var(--bg-color);
+            transition: border-color 0.5s ease, background 0.5s ease;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-    /* Modern link box effect (animated ring around link) */
-    a{color:var(--accent);text-decoration:none;position:relative;display:inline-block;padding:1px 6px;border-radius:10px;transition:transform .2s ease, color .2s ease}
-    a::after{content:"";position:absolute;inset:-2px;border-radius:12px;padding:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform .25s ease;opacity:.9;-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-    a:hover{transform:translateY(-1px)}
-    a:hover::after{transform:scaleX(1)}
+        /* --- CONTENT GRID --- */
+        .section-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr; /* Desktop Sidebar Width */
+            min-height: 80vh;
+        }
 
-    @media (max-width: 900px){ #intro .grid{grid-template-columns:1fr} section{min-height:auto;padding:80px 0} }
-    @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} .reveal{animation:none} }
-  </style>
+        .sidebar {
+            border-right: 1px solid var(--grid-line);
+            padding: 2rem;
+            position: sticky;
+            top: var(--header-height);
+            height: fit-content;
+            transition: border-color 0.5s ease;
+        }
+
+        .main-content {
+            padding: 0;
+            width: 100%; /* Ensure content takes full remaining width */
+            overflow: hidden; /* Prevent horizontal overflow */
+        }
+
+        /* About Section Styles */
+        .about-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+        }
+        .about-text {
+            padding: 3rem;
+            border-right: 1px solid var(--grid-line);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .about-image-container {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--grid-line);
+            padding: 2rem;
+            min-height: 400px;
+        }
+        .about-img {
+            width: 80%;
+            max-width: 400px;
+            height: auto;
+            filter: grayscale(100%) contrast(1.2);
+            transition: filter 0.5s ease, transform 0.5s ease;
+            mix-blend-mode: luminosity;
+        }
+        .about-image-container:hover .about-img {
+            filter: grayscale(0%) contrast(1);
+            transform: scale(1.02);
+            mix-blend-mode: normal;
+        }
+        .skill-tag {
+            display: inline-block;
+            border: 1px solid var(--grid-line);
+            padding: 5px 12px;
+            margin: 5px 5px 0 0;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            transition: 0.3s;
+        }
+        .skill-tag:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        /* Services / Work List Styles */
+        .work-row {
+            border-bottom: 1px solid var(--grid-line);
+            padding: 3rem;
+            transition: background 0.3s, border-color 0.5s ease;
+            position: relative;
+        }
+        .work-row:hover { background: rgba(125,125,125,0.05); }
+        .work-row h3 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .work-meta { display: flex; gap: 2rem; margin-bottom: 1rem; color: #888; flex-wrap: wrap; }
+        .work-desc { max-width: 600px; font-size: 1.1rem; line-height: 1.5; }
+        
+        .hover-reveal {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 3rem;
+        }
+        .work-row:hover .hover-reveal { opacity: 0.2; }
+
+        /* --- BLOG GRID --- */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .blog-item {
+            border-bottom: 1px solid var(--grid-line);
+            border-right: 1px solid var(--grid-line); 
+            padding: 2rem;
+            height: 350px;
+            display: flex; /* Kept for structure */
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.3s;
+            text-decoration: none;
+            transition: border-color 0.5s ease, color 0.3s ease, background 0.3s ease;
+            
+            position: relative; /* Essential for absolute positioning of background */
+            overflow: hidden; /* Crop the image */
+            z-index: 1; /* Establish stacking context */
+        }
+        
+        .blog-item:nth-child(even) { border-right: none; }
+        .blog-item:hover { 
+            /* Removed solid background change to allow image to show */
+            color: #ffffff; /* Force white text on hover for contrast */
+        }
+        .blog-item:hover .blog-arrow { transform: translateX(10px); }
+
+        /* Blog Content Wrapper to sit above the image */
+        .blog-content-wrapper {
+            position: relative;
+            z-index: 2; /* Sit on top of image */
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* Helps readability over image */
+        }
+        
+        /* The Hover Image */
+        .blog-bg-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0; /* Hidden by default */
+            z-index: -1; /* Sit behind content */
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            filter: grayscale(100%) brightness(0.4); /* Dark and B&W to not distract */
+            pointer-events: none;
+        }
+
+        .blog-item:hover .blog-bg-img {
+            opacity: 1;
+            transform: scale(1.05); /* Subtle zoom effect */
+        }
+        
+        .blog-title { font-size: 1.5rem; font-weight: 700; line-height: 1.2; font-family: var(--font-display); }
+        .blog-meta { font-family: var(--font-mono); font-size: 0.8rem; opacity: 0.7; }
+
+        /* --- FOOTER --- */
+        footer {
+            border-top: 1px solid var(--grid-line);
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            transition: border-color 0.5s ease;
+        }
+
+        /* --- RESPONSIVE / MOBILE --- */
+        @media (max-width: 1024px) {
+            .big-text { font-size: 5rem; }
+            .section-grid { grid-template-columns: 200px 1fr; }
+            .work-row, .about-text { padding: 2rem; }
+            .work-row h3 { font-size: 2rem; }
+        }
+
+        @media (max-width: 768px) {
+            /* Header Stack */
+            header { 
+                grid-template-columns: 1fr auto; 
+                padding: 0 1rem; 
+            }
+            .header-center { display: none; } /* Hide center clock on mobile */
+            
+            /* Hero Stack */
+            #hero { 
+                grid-template-columns: 1fr; 
+                height: auto; 
+                min-height: auto;
+            }
+            .hero-left { 
+                padding: 2rem 1.5rem; 
+                border-right: none; 
+                border-bottom: 1px solid var(--grid-line); 
+                height: auto;
+                min-height: 50vh;
+            }
+            #canvas-wrapper { 
+                height: 50vh; 
+                border-bottom: 1px solid var(--grid-line); 
+            }
+            .big-text { font-size: 14vw; } /* Fluid font size for mobile */
+
+            /* Main Grid Stack */
+            .section-grid { 
+                grid-template-columns: 1fr; 
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar { 
+                width: 100%;
+                border-right: none; 
+                border-bottom: 1px solid var(--grid-line); 
+                position: relative; 
+                top: 0; 
+                padding: 1.5rem; 
+            }
+
+            /* About Section Stack */
+            .about-layout { grid-template-columns: 1fr; }
+            .about-text { border-right: none; border-bottom: 1px solid var(--grid-line); padding: 2rem 1.5rem; }
+            .about-image-container { min-height: 300px; padding: 0; }
+            .about-img { width: 100%; max-width: none; }
+
+            /* Work List */
+            .work-row { padding: 2rem 1.5rem; }
+            .work-desc { font-size: 1rem; }
+            .hover-reveal { display: none; } /* Remove hover effects on touch */
+
+            /* Blog Stack */
+            .blog-grid { grid-template-columns: 1fr; }
+            .blog-item { border-right: none; height: auto; min-height: 250px; }
+
+            /* Footer Stack */
+            footer { grid-template-columns: 1fr; padding: 3rem 1.5rem; gap: 3rem; }
+        }
+    </style>
 </head>
 <body>
-  <div class="scene" id="scene"></div>
 
-  <div class="hud" id="hud">
-    <span>Use <b>↑/↓</b> or <b>scroll</b> to jump pages</span>
-    <span class="sep">•</span>
-    <a href="#intro">About</a>
-    <span class="sep">|</span>
-    <a href="#blog">Blog</a>
-    <span class="sep">|</span>
-    <a href="#contact">Contact</a>
-  </div>
+    <header>
+        <div class="logo mono">SHANAKA ⌿ IAM ENGINEER</div>
+        <div class="header-center mono">
+            <span id="clock">00:00:00</span>
+            <span style="margin: 0 10px;">|</span>
+            <span>60.1699° N, 24.9384° E</span> <!-- Helsinki -->
+        </div>
+        <div class="header-right mono">
+            <a href="#about">ABOUT</a>
+            <a href="#work">WORK</a>
+            <button class="theme-btn" id="theme-toggle">LIGHT</button>
+        </div>
+    </header>
 
-  <main>
-    <section id="intro">
-      <div class="container">
-        <div class="grid">
-          <div class="panel">
-            <h1>Hi, I’m <span style="color:var(--accent)">Shanaka Sandanayaka</span> — IAM Engineer & Builder</h1>
-            <p>Lead developer for enterprise IAM and secure APIs. I design identity platforms and developer tooling used in production at scale.</p>
-            <h2>About me</h2>
-            <p>
-              Lead Developer (IAM) at OP Financial Group in Helsinki. Previously Senior IAM Engineer at WithSecure and engineering roles at WSO2.
-              I build standards‑based authentication & authorization (OAuth2/OIDC, SAML, SCIM), ABAC/XACML policy systems, and secure API platforms across Java/JS stacks.
+    <section id="hero">
+        <div class="hero-left">
+            <div class="mono">Portfolio V2.0</div>
+            <div>
+                <h1 class="big-text">Identity<br>Secured.</h1>
+            </div>
+            <div class="mono" style="max-width: 400px; line-height: 1.5;">
+                Architecting secure authentication & authorization platforms at enterprise scale. <br>
+                Helsinki, Finland.
+            </div>
+        </div>
+        <div id="canvas-wrapper">
+            <!-- 3D Shader goes here -->
+        </div>
+    </section>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+             OAUTH2 /// OPENID CONNECT /// SAML /// KUBERNETES /// SPRING BOOT /// API SECURITY /// OAUTH2 /// OPENID CONNECT /// SAML /// KUBERNETES /// SPRING BOOT /// API SECURITY ///
+        </div>
+    </div>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="section-grid">
+        <div class="sidebar">
+            <div class="mono">// 01. PROFILE</div>
+            <h2 style="font-size: 2rem; margin-top: 1rem;">Who I Am</h2>
+        </div>
+        <div class="main-content about-layout">
+            <div class="about-text">
+                <p style="font-size: 1.25rem; line-height: 1.6; margin-bottom: 2rem;">
+                    Hi, I'm <strong>Shanaka Sandanayaka</strong>. I build the systems that decide who gets in. 
+                    <br><br>
+                    As a Lead Developer (IAM), I specialize in designing identity platforms and developer tooling used in production at scale.
+                    My work bridges the gap between complex security standards and seamless user experiences.
+                </p>
+                <div class="mono" style="margin-bottom: 10px; opacity: 0.6;">CORE STACK</div>
+                <div style="display: flex; flex-wrap: wrap;">
+                    <span class="skill-tag">JAVA</span>
+                    <span class="skill-tag">SPRING BOOT</span>
+                    <span class="skill-tag">OIDC / OAUTH2</span>
+                    <span class="skill-tag">DOCKER / K8S</span>
+                    <span class="skill-tag">REACT</span>
+                    <span class="skill-tag">ABAC / XACML</span>
+                </div>
+            </div>
+            <div class="about-image-container">
+                <!-- Explicit Image Tag for visibility -->
+                <img src="https://github.com/shagihan.png" alt="Shanaka Sandanayaka" class="about-img">
+            </div>
+        </div>
+    </section>
+
+    <!-- WORK / SERVICES SECTION -->
+    <section id="work" class="section-grid" style="border-top: 1px solid var(--grid-line);">
+        <div class="sidebar">
+            <div class="mono">// 02. EXPERIENCE</div>
+            <h2 style="font-size: 2rem; margin-top: 1rem;">Career<br>Timeline</h2>
+        </div>
+        <div class="main-content">
+            <!-- Work Item 1 -->
+            <div class="work-row">
+                <div class="work-meta mono">2024 — PRESENT <span style="margin: 0 10px;">/</span> HELSINKI</div>
+                <h3>OP Financial Group</h3>
+                <div class="mono" style="margin-bottom: 1rem; color: var(--accent-color);">LEAD DEVELOPER (IAM)</div>
+                <p class="work-desc">
+                    Leading the development of the ABAC product utilized across the organization. Architecting scalable IAM solutions for Finland's largest financial services group using Java and Cloud technologies.
+                </p>
+                <div class="hover-reveal">🏦</div>
+            </div>
+            <!-- Work Item 2 -->
+            <div class="work-row">
+                <div class="work-meta mono">2021 — 2024 <span style="margin: 0 10px;">/</span> HELSINKI</div>
+                <h3>WithSecure</h3>
+                <div class="mono" style="margin-bottom: 1rem;">SENIOR IAM ENGINEER</div>
+                <p class="work-desc">
+                    Core member of the IAM team managing over 30 million identities. Engineered cloud-native authentication solutions and secure APIs using Java, AWS, and Kubernetes.
+                </p>
+                <div class="hover-reveal">🛡️</div>
+            </div>
+            <!-- Work Item 3 -->
+            <div class="work-row">
+                <div class="work-meta mono">2017 — 2024 <span style="margin: 0 10px;">/</span> COLOMBO</div>
+                <h3>WSO2</h3>
+                <div class="mono" style="margin-bottom: 1rem;">ASSOCIATE TECH LEAD</div>
+                <p class="work-desc">
+                    Core contributor to WSO2 Identity Server and API Manager. Led teams in implementing OAuth2, OpenID Connect, and SCIM 2.0 standards using Java for global enterprise customers.
+                </p>
+                <div class="hover-reveal">🚀</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOG SECTION -->
+    <section id="blog" class="section-grid" style="border-top: 1px solid var(--grid-line);">
+        <div class="sidebar">
+            <div class="mono">// 03. THOUGHTS</div>
+            <h2 style="font-size: 2rem; margin-top: 1rem;">Latest<br>Writing</h2>
+            <p class="mono" style="margin-top: 2rem; opacity: 0.6;">
+                Technical deep dives into OAuth, security patterns, and engineering culture.
             </p>
-          </div>
-          <div class="panel">
-            <h2>Highlights</h2>
-            <ul>
-              <li>Lead Developer (IAM) — OP Financial Group (2024–now)</li>
-              <li>Senior Engineer (IAM) — WithSecure (2021–2024)</li>
-              <li>Associate Tech Lead / Senior SE — WSO2 (2017–2024)</li>
-              <li>Awards: WSO2 Sustained Outstanding Contributor (2018, 2019)</li>
-              <li>Certs: AWS Solutions Architect Associate; WSO2 IS/APIM certs</li>
-              <li>Skills: Java, JS/React, Spring Boot, Docker, K8s, API Mgmt, ABAC/XACML</li>
-            </ul>
-          </div>
         </div>
-      </div>
+        <div class="main-content blog-grid" id="blog-container">
+            <!-- Loading State -->
+            <div class="blog-item">
+                <div class="mono">Loading Feed...</div>
+            </div>
+        </div>
     </section>
 
-    <section id="blog">
-      <div class="container">
-        <div class="panel">
-          <h2>Latest posts</h2>
-          <p style="color:var(--muted);margin:0 0 10px 0">Pulled from Medium (<code>@shagihan</code>). Showing 5 latest.</p>
-          <div class="posts" id="posts"></div>
-          <a id="seeMore" class="more" href="https://medium.com/@shagihan" target="_blank" rel="noopener">See more on Medium →</a>
+    <footer>
+        <div>
+            <div class="mono" style="margin-bottom: 1rem;">CONTACT</div>
+            <h2 style="font-size: 2rem; line-height: 1.1;">Let's build<br>secure systems.</h2>
         </div>
-      </div>
-    </section>
-
-    <section id="contact">
-      <div class="container">
-        <div class="card">
-          <h2>Contact</h2>
-          <p style="color:var(--muted);margin-top:0">I’d love to connect about identity engineering, secure APIs, and developer tooling. If you have an interesting problem space, let’s talk.</p>
-          <div class="icons">
-            <a class="icon" href="https://github.com/shagihan" target="_blank" rel="noopener" aria-label="GitHub">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.79 23.4c.6.1.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61-.55-1.38-1.35-1.75-1.35-1.75-1.1-.76.08-.75.08-.75 1.21.08 1.85 1.24 1.85 1.24 1.08 1.84 2.83 1.31 3.52 1 .11-.79.42-1.31.76-1.61-2.67-.3-5.48-1.34-5.48-5.95 0-1.31.47-2.37 1.24-3.21-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.43 11.43 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.24 2.87.12 3.17.77.84 1.23 1.9 1.23 3.2 0 4.62-2.82 5.65-5.5 5.95.43.37.82 1.1.82 2.22v3.29c0 .32.21.69.83.57A12 12 0 0 0 12 .5Z"/></svg>
-              GitHub
-            </a>
-            <a class="icon" href="https://www.linkedin.com/in/shanaka-sandanayaka-29509061/" target="_blank" rel="noopener" aria-label="LinkedIn">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8.5h4V24h-4V8.5zM8.5 8.5h3.8v2.1h.1c.5-1 1.8-2.1 3.7-2.1 3.9 0 4.6 2.5 4.6 5.8V24h-4v-6.5c0-1.6 0-3.7-2.2-3.7-2.2 0-2.5 1.7-2.5 3.6V24h-4V8.5z"/></svg>
-              LinkedIn
-            </a>
-            <a class="icon" href="https://medium.com/@shagihan" target="_blank" rel="noopener" aria-label="Medium">
-              <svg viewBox="0 0 1043.63 592.71" width="18" height="18" fill="currentColor"><path d="M588.67 296.35c0 163.67-131.97 296.35-294.33 296.35S0 460.02 0 296.35 131.97 0 294.33 0s294.33 132.68 294.33 296.35M829.08 296.35c0 152.69-65.98 276.44-147.38 276.44-81.41 0-147.39-123.75-147.39-276.44s65.98-276.44 147.39-276.44 147.38 123.75 147.38 276.44m214.55 0c0 140.08-23.48 253.6-52.43 253.6-28.95 0-52.43-113.52-52.43-253.6 0-140.09 23.48-253.6 52.43-253.6 28.95 0 52.43 113.51 52.43 253.6"/></svg>
-              Medium
-            </a>
-          </div>
-          <div class="sig">— Shanaka</div>
+        <div style="align-self: end;">
+            <div class="mono" style="margin-bottom: 0.5rem;">SOCIAL</div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="https://github.com/shagihan" target="_blank" class="mono">GITHUB ↗</a>
+                <a href="https://linkedin.com/in/shagihan" target="_blank" class="mono">LINKEDIN ↗</a>
+                <a href="https://medium.com/@shagihan" target="_blank" class="mono">MEDIUM ↗</a>
+            </div>
         </div>
-      </div>
-    </section>
-  </main>
+        <div style="align-self: end; text-align: right;">
+            <div class="mono">© 2025 Shanaka Sandanayaka</div>
+            <div class="mono">Helsinki, FI</div>
+        </div>
+    </footer>
 
-  <footer>© <span id="y"></span> Shanaka Sandanayaka — All rights reserved.</footer>
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- 0. RANDOMIZE THEME ON LOAD ---
+        // Randomly decide if dark or light mode
+        let isDark = Math.random() < 0.5;
 
-  <div id="toast" style="position:fixed;top:64px;left:16px;z-index:4;padding:8px 10px;background:#103728;color:#d4fff0;border:1px solid #2ccf9d;border-radius:8px;font:12px/1.25 system-ui;display:none"></div>
+        // Apply immediately to DOM and Button
+        const themeBtn = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        function applyTheme() {
+            html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            themeBtn.innerText = isDark ? 'LIGHT' : 'DARK';
+        }
+        applyTheme();
 
-  <script type="module">
-    // ===================== 3D FACE (scroll‑only) + RESTORED BG + THEME CYCLER =====================
-    import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-    import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
+        // --- 1. CLOCK LOGIC ---
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', { hour12: false });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
 
-    const DEBUG=false;
-    const container = document.getElementById('scene');
-    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setSize(innerWidth, innerHeight);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    container.appendChild(renderer.domElement);
+        // --- 2. MEDIUM BLOG FETCH WITH IMAGES ---
+        const RSS_URL = 'https://medium.com/feed/@shagihan';
+        const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
 
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x071d14, 0.10);
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('blog-container');
+                container.innerHTML = '';
+                data.items.slice(0, 4).forEach(item => {
+                    const date = new Date(item.pubDate).toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+                    
+                    // Try to find image in explicit thumbnail or description content
+                    let imgSrc = item.thumbnail;
+                    if (!imgSrc && item.description) {
+                         const imgMatch = item.description.match(/<img[^>]+src="([^">]+)"/);
+                         if (imgMatch) {
+                             imgSrc = imgMatch[1];
+                         }
+                    }
 
-    const camera = new THREE.PerspectiveCamera(38, innerWidth/innerHeight, 0.01, 80);
-    scene.add(camera);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+                    const article = document.createElement('a');
+                    article.href = item.link;
+                    article.target = '_blank';
+                    article.className = 'blog-item';
+                    
+                    // Build HTML with Image background and Wrapper for text
+                    article.innerHTML = `
+                        ${imgSrc ? `<img src="${imgSrc}" class="blog-bg-img" alt="Post thumbnail">` : ''}
+                        <div class="blog-content-wrapper">
+                            <div>
+                                <div class="mono" style="margin-bottom: 1rem;">${date}</div>
+                                <div class="blog-title">${item.title}</div>
+                            </div>
+                            <div class="flex-between" style="width: 100%; margin-top: 1rem;">
+                                <span class="mono">READ ARTICLE</span>
+                                <span class="blog-arrow">→</span>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(article);
+                });
+                
+                const viewAll = document.createElement('a');
+                viewAll.href = 'https://medium.com/@shagihan';
+                viewAll.target = '_blank';
+                viewAll.className = 'blog-item flex-center';
+                viewAll.style.background = 'var(--grid-line)';
+                viewAll.innerHTML = `<div class="mono">VIEW ARCHIVE →</div>`;
+                container.appendChild(viewAll);
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('blog-container').innerHTML = '<div class="pad-box mono">Failed to load feed.</div>';
+            });
 
-    // ===== Restored space background (stars + constellations + drifting shapes) =====
-    const bgFar=new THREE.Group(), bgMid=new THREE.Group(), bgNear=new THREE.Group();
-    scene.add(bgFar); scene.add(bgMid); scene.add(bgNear);
+        // --- 3. THREE.JS: LIQUID + PARALLAX + THEME SUPPORT ---
+        
+        const canvasContainer = document.getElementById('canvas-wrapper');
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        canvasContainer.appendChild(renderer.domElement);
 
-    function makeStars({count,spread,size,seed}){
-      const rnd=(()=>{let s=seed>>>0;return ()=> (s=(s*1664525+1013904223)>>>0)/4294967296;})();
-      const g=new THREE.BufferGeometry(); const pos=new Float32Array(count*3);
-      for(let i=0;i<count;i++){pos[i*3]=(rnd()-0.5)*spread;pos[i*3+1]=(rnd()-0.5)*spread*1.1;pos[i*3+2]=(rnd()-0.5)*spread}
-      g.setAttribute('position',new THREE.BufferAttribute(pos,3));
-      const m=new THREE.PointsMaterial({size,transparent:true,depthWrite:false});
-      return new THREE.Points(g,m);
-    }
-    function makeConstellations(points,links=420,maxDist=2.6,opacity=0.12){
-      const pos=points.geometry.getAttribute('position'); const seg=[]; const A=new THREE.Vector3(), B=new THREE.Vector3();
-      for(let i=0;i<links;i++){const a=(Math.random()*pos.count)|0, b=(Math.random()*pos.count)|0; A.fromBufferAttribute(pos,a); B.fromBufferAttribute(pos,b); if(A.distanceTo(B)<=maxDist){seg.push(A.x,A.y,A.z,B.x,B.y,B.z)}}
-      const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(seg,3));
-      const m=new THREE.LineBasicMaterial({transparent:true,opacity});
-      return new THREE.LineSegments(g,m);
-    }
-    const farStars=makeStars({count:2600,spread:36,size:0.008,seed:2}); farStars.position.z=-18; bgFar.add(farStars);
-    const midStars=makeStars({count:1800,spread:24,size:0.012,seed:3}); midStars.position.z=-8; bgMid.add(midStars);
-    const nearStars=makeStars({count:1200,spread:12,size:0.02,seed:4}); nearStars.position.z=-3; bgNear.add(nearStars);
-    const constel=makeConstellations(midStars,520,2.4,0.12); bgMid.add(constel);
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.setCrossOrigin('anonymous'); 
+        const texture = textureLoader.load('https://github.com/shagihan.png');
 
-    const objGroup=new THREE.Group(); bgMid.add(objGroup);
-    const icoGeo=new THREE.IcosahedronGeometry(0.12,0), boxGeo=new THREE.BoxGeometry(0.12,0.12,0.12), octGeo=new THREE.OctahedronGeometry(0.12,0);
-    const mat=new THREE.MeshStandardMaterial({color:'#4debd6',metalness:0.6,roughness:0.35,transparent:true,opacity:0.6});
-    const shapes=[icoGeo,boxGeo,octGeo];
-    for(let i=0;i<24;i++){
-      const mesh=new THREE.Mesh(shapes[i%shapes.length],mat.clone());
-      mesh.position.set((Math.random()-0.5)*10,(Math.random()-0.5)*6,-6-Math.random()*6);
-      mesh.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,0);
-      mesh.userData={vx:(Math.random()-0.5)*0.02, vy:(Math.random()-0.5)*0.02, vr:(Math.random()-0.5)*0.01};
-      objGroup.add(mesh);
-    }
+        // State Management for Scrolling
+        let scrollY = 0;
+        let targetScrollY = 0;
 
-    // ===== Face =====
-    const faceGroup = new THREE.Group(); scene.add(faceGroup);
-    let points = null; let sourceType = 'unknown';
+        // --- Shader (Background) ---
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = vec4(position, 1.0);
+            }
+        `;
 
-    async function loadHeadMesh(){
-      try{
-        const gltf = await new GLTFLoader().loadAsync('https://threejs.org/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb');
-        let mesh=null; gltf.scene.traverse(c=>{ if(c.isMesh) mesh=c; });
-        if(mesh){ mesh.geometry.computeVertexNormals(); sourceType='gltf'; return mesh; }
-        throw new Error('GLTF had no mesh');
-      }catch(e){ if(DEBUG) console.warn('GLTF failed, fallback OBJ', e); }
-      const obj = await new OBJLoader().setPath('https://threejs.org/examples/models/obj/male02/').loadAsync('male02.obj');
-      let mesh=null; obj.traverse(c=>{ if(c.isMesh) mesh=c; });
-      if(!mesh) throw new Error('OBJ had no mesh');
-      mesh.geometry.computeVertexNormals(); sourceType='obj'; return mesh;
-    }
+        const fragmentShader = `
+            uniform float time;
+            uniform vec2 resolution;
+            uniform vec2 mouse;
+            uniform sampler2D uTexture;
+            uniform float uTheme; // 0.0 for Dark, 1.0 for Light
+            varying vec2 vUv;
 
-    function buildPointFaceFrom(mesh){
-      mesh.geometry.center(); mesh.geometry.computeBoundingSphere();
-      const r = mesh.geometry.boundingSphere.radius; mesh.scale.setScalar(0.95/r); mesh.rotation.y = Math.PI;
+            void main() {
+                vec2 uv = vUv;
+                float aspect = resolution.x / resolution.y;
+                
+                // Mouse Interaction
+                vec2 mousePoint = mouse;
+                mousePoint.x /= aspect; 
+                float dist = distance(uv, mouse);
+                float wave = sin(dist * 15.0 - time * 1.5) * 0.03;
+                uv += wave * exp(-dist * 3.0);
+                
+                // Color Channels (RGB Split)
+                float r = texture2D(uTexture, uv + vec2(0.005 * sin(time*0.5), 0.0)).r;
+                float g = texture2D(uTexture, uv).g;
+                float b = texture2D(uTexture, uv - vec2(0.005 * cos(time*0.5), 0.0)).b;
+                
+                vec3 texColor = vec3(r, g, b);
+                float gray = dot(texColor, vec3(0.299, 0.587, 0.114));
+                
+                vec3 finalColor;
 
-      const COUNT=38000; const positions=new Float32Array(COUNT*3); const normals=new Float32Array(COUNT*3);
-      const sampler=new MeshSurfaceSampler(mesh).build(); const p=new THREE.Vector3(); const n=new THREE.Vector3();
-      for(let i=0;i<COUNT;i++){ sampler.sample(p,n); positions[i*3]=p.x; positions[i*3+1]=p.y; positions[i*3+2]=p.z; normals[i*3]=n.x; normals[i*3+1]=n.y; normals[i*3+2]=n.z; }
-      const geom=new THREE.BufferGeometry(); geom.setAttribute('position', new THREE.BufferAttribute(positions,3)); geom.setAttribute('normal', new THREE.BufferAttribute(normals,3));
-      const material=new THREE.ShaderMaterial({
-        uniforms:{ uColor:{value:new THREE.Color('#b6ffda')}, uPixelRatio:{value:Math.min(devicePixelRatio,2)}, uBaseSize:{value:3.4}, uGlow:{value:0.85} },
-        vertexShader:`uniform float uPixelRatio; uniform float uBaseSize; varying float vStrength; varying float vLambert; void main(){ vec3 n=normalize(normalMatrix*normal); vLambert=max(dot(n,vec3(0.,0.,1.)),0.); vec4 mv=modelViewMatrix*vec4(position,1.); float depth=-mv.z; float size=uBaseSize*uPixelRatio*clamp(1.25/depth,.8,4.); gl_PointSize=size; vStrength=clamp(1.6/depth,.2,1.); gl_Position=projectionMatrix*mv; }`,
-        fragmentShader:`precision mediump float; uniform vec3 uColor; uniform float uGlow; varying float vStrength; varying float vLambert; void main(){ vec2 c=gl_PointCoord-.5; float r2=dot(c,c); if(r2>.25) discard; float glow=smoothstep(.10,0.,r2)*uGlow; float shade=.45+.55*vLambert; vec3 col=uColor*(shade+.55*vStrength+glow); float alpha=smoothstep(.25,0.,r2); gl_FragColor=vec4(col,alpha); }`,
-        blending:THREE.AdditiveBlending, depthWrite:false, transparent:true, dithering:true
-      });
-      points=new THREE.Points(geom,material); faceGroup.add(points);
+                if (uTheme < 0.5) {
+                    // DARK MODE
+                    finalColor = vec3(gray * 0.15); 
+                } else {
+                    // LIGHT MODE
+                    finalColor = vec3(0.95) - (vec3(gray) * 0.1);
+                }
 
-      fitFaceToScreen();
-      selfTests();
-    }
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
 
-    function fitFaceToScreen(){
-      if(!points) return;
-      points.geometry.computeBoundingSphere();
-      const R = points.geometry.boundingSphere.radius * points.getWorldScale(new THREE.Vector3()).x;
-      const fov = THREE.MathUtils.degToRad(camera.fov);
-      const dist = (R / Math.tan(fov/2)) * 1.12; // 12% margin
-      camera.position.set(0, 0.02, dist);
-      camera.near = Math.max(0.01, dist - R*3.0);
-      camera.far  = dist + R*6.0;
-      camera.updateProjectionMatrix();
-    }
+        const uniforms = {
+            time: { value: 0 },
+            resolution: { value: new THREE.Vector2(canvasContainer.offsetWidth, canvasContainer.offsetHeight) },
+            mouse: { value: new THREE.Vector2(0.5, 0.5) },
+            uTexture: { value: texture },
+            uTheme: { value: isDark ? 0.0 : 1.0 } // Set initial value from random state
+        };
 
-    loadHeadMesh().then(buildPointFaceFrom).catch(e=>{ if(DEBUG) console.error(e); });
+        const bgGeometry = new THREE.PlaneGeometry(2, 2);
+        const bgMaterial = new THREE.ShaderMaterial({ vertexShader, fragmentShader, uniforms, depthTest: false });
+        const bgPlane = new THREE.Mesh(bgGeometry, bgMaterial);
+        bgPlane.renderOrder = -1;
+        scene.add(bgPlane);
 
-    // ==== Scroll spring smoothing for face (based on real scroll position) ====
-    let rawProgress=0, smoothP=0, vel=0; const K=45, C=20;
-    function updateRawProgress(){ const dh=Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)-innerHeight; rawProgress = dh>0 ? (scrollY||pageYOffset)/dh : 0; }
-    addEventListener('scroll', updateRawProgress, {passive:true}); updateRawProgress();
+        // --- Floating 3D Objects ---
+        const shapesGroup = new THREE.Group();
+        scene.add(shapesGroup);
 
-    // ===== Smooth theme (10s continuous cross‑fade) =====
-    const palettes=[
-      {bg0:'#071d14',bg1:'#0e2e20',accent:'#b6ffda',accent2:'#3cf2ff'},
-      {bg0:'#0b1020',bg1:'#111a2e',accent:'#ffd36e',accent2:'#ff8bd1'},
-      {bg0:'#100a1a',bg1:'#1a1024',accent:'#a7b0ff',accent2:'#7dffd6'}
-    ];
-    let palA=palettes[0], palB=palettes[1], lastThemeSwitch=performance.now();
-    function hexToRgb(h){const m=h.replace('#','');return {r:parseInt(m.slice(0,2),16),g:parseInt(m.slice(2,4),16),b:parseInt(m.slice(4,6),16)};}
-    function mix(a,b,t){return Math.round(a+(b-a)*t)}
-    function rgbToHex({r,g,b}){return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`}
-    function lerpColor(ha,hb,t){const a=hexToRgb(ha), b=hexToRgb(hb); return rgbToHex({r:mix(a.r,b.r,t),g:mix(a.g,b.g,t),b:mix(a.b,b.b,t)})}
-    function applyBlendedTheme(t){
-      const bg0=lerpColor(palA.bg0,palB.bg0,t), bg1=lerpColor(palA.bg1,palB.bg1,t), accent=lerpColor(palA.accent,palB.accent,t), accent2=lerpColor(palA.accent2,palB.accent2,t);
-      const root=document.documentElement; root.style.setProperty('--bg0',bg0); root.style.setProperty('--bg1',bg1); root.style.setProperty('--accent',accent); root.style.setProperty('--accent2',accent2);
-      document.body.style.background = `radial-gradient(160vmax 160vmax at 70% -20%, ${bg1}, ${bg0})`;
-      if(points){ points.material.uniforms.uColor.value.set(accent); }
-      [bgFar,bgMid,bgNear].forEach((grp,i)=> grp.traverse(o=>{ if(o.isPoints){ o.material.color = new THREE.Color(i===2?accent2:accent); } if(o.isLineSegments){ o.material.color = new THREE.Color(accent); } }));
-    }
+        const geoParams = [
+            new THREE.IcosahedronGeometry(0.4, 0),
+            new THREE.OctahedronGeometry(0.3, 0),
+            new THREE.TorusKnotGeometry(0.25, 0.05, 64, 8),
+            new THREE.TetrahedronGeometry(0.3, 0)
+        ];
 
-    // Animation loop
-    const clock=new THREE.Clock();
-    function animate(){
-      requestAnimationFrame(animate);
-      const dt=Math.min(clock.getDelta(),0.033);
+        // Determine initial wireframe color based on random theme
+        const initialWireColor = isDark ? 0x3b82f6 : 0x333333;
+        const initialWireOpacity = isDark ? 0.3 : 0.5;
 
-      // Theme blending: exactly 10s per palette cross‑fade
-      const elapsed=(performance.now()-lastThemeSwitch)/1000; const D=10; // seconds
-      if(elapsed<=D){ const t=elapsed/D; const t2=t*t*(3-2*t); applyBlendedTheme(t2); }
-      else { lastThemeSwitch=performance.now(); palA=palB; palB=palettes[(palettes.indexOf(palB)+1)%palettes.length]; }
+        const wireMaterial = new THREE.MeshBasicMaterial({
+            color: initialWireColor,
+            wireframe: true,
+            transparent: true,
+            opacity: initialWireOpacity
+        });
 
-      // Spring toward scroll target
-      const a = -K*(smoothP-rawProgress) - C*vel; vel += a*dt; smoothP += vel*dt;
+        for(let i=0; i<8; i++) {
+            const geo = geoParams[Math.floor(Math.random() * geoParams.length)];
+            const mesh = new THREE.Mesh(geo, wireMaterial);
+            mesh.position.set(
+                (Math.random() - 0.5) * 2.8,
+                (Math.random() - 0.5) * 2.8,
+                0 
+            );
+            mesh.userData = {
+                rotX: (Math.random() - 0.5) * 0.01,
+                rotY: (Math.random() - 0.5) * 0.01,
+                baseY: mesh.position.y,
+                parallaxSpeed: 0.5 + Math.random() * 0.5 
+            };
+            shapesGroup.add(mesh);
+        }
 
-      const spin = smoothP * Math.PI * 1.0; // 180° total
-      const dolly = THREE.MathUtils.lerp(0.0, -0.12, smoothP);
-      const lift  = THREE.MathUtils.lerp(0.0,  0.06, smoothP);
-      faceGroup.rotation.set(0, spin, 0);
-      faceGroup.position.set(0, lift, dolly);
+        // --- Input Handling ---
+        
+        let targetMouse = new THREE.Vector2(0.5, 0.5);
+        document.addEventListener('mousemove', (e) => {
+            const rect = canvasContainer.getBoundingClientRect();
+            if(e.clientY >= rect.top && e.clientY <= rect.bottom && e.clientX >= rect.left && e.clientX <= rect.right) {
+                 targetMouse.x = (e.clientX - rect.left) / rect.width;
+                 targetMouse.y = 1.0 - (e.clientY - rect.top) / rect.height; 
+            }
+        });
 
-      // Background parallax & object drift (kept subtle)
-      const px=Math.sin(smoothP*Math.PI*2);
-      bgFar.position.x = px*0.06;  bgFar.position.y = -smoothP*0.01;
-      bgMid.position.x = px*0.12;  bgMid.position.y = -smoothP*0.02;
-      bgNear.position.x= px*0.22;  bgNear.position.y= -smoothP*0.03;
-      if(constel && constel.material) constel.material.opacity = 0.08 + 0.06*(0.5+0.5*Math.sin(performance.now()*0.0015));
-      objGroup.children.forEach(m=>{ m.rotation.y += m.userData.vr; m.rotation.x += m.userData.vr*0.6; m.position.x += m.userData.vx*dt; m.position.y += m.userData.vy*dt; if(m.position.x>6) m.position.x=-6; if(m.position.x<-6) m.position.x=6; if(m.position.y>4) m.position.y=-4; if(m.position.y<-4) m.position.y=4; });
+        window.addEventListener('scroll', () => {
+            targetScrollY = window.scrollY;
+        });
 
-      renderer.render(scene, camera);
-    }
-    animate();
+        // Theme Toggle Click Listener
+        themeBtn.addEventListener('click', () => {
+            isDark = !isDark;
+            applyTheme(); // Updates DOM & Button text
 
-    addEventListener('resize', ()=>{ renderer.setSize(innerWidth, innerHeight); camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); fitFaceToScreen(); computeLayout?.(); });
+            // Update Three.js
+            uniforms.uTheme.value = isDark ? 0.0 : 1.0;
+            const newColor = isDark ? 0x3b82f6 : 0x333333; 
+            wireMaterial.color.setHex(newColor);
+            wireMaterial.opacity = isDark ? 0.3 : 0.5;
+        });
 
-    // ===================== NAVIGATION — (unchanged from your version) =====================
-    const sections=[...document.querySelectorAll('main > section')];
-    let currentIndex=0; let snapping=false; let tops=[], mids=[];
+        // --- Animation Loop ---
+        const clock = new THREE.Clock();
 
-    function computeLayout(){ tops = sections.map(s=>s.offsetTop); mids = sections.map(s=> s.offsetTop + s.offsetHeight/2); }
-    function indexFromViewport(){ const center=(scrollY||pageYOffset)+innerHeight/2; let nearest=0,best=Infinity; for(let i=0;i<mids.length;i++){ const d=Math.abs(mids[i]-center); if(d<best){best=d; nearest=i;} } return nearest; }
-    computeLayout(); currentIndex=indexFromViewport();
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
 
-    function scrollToIndex(i){ i=Math.max(0,Math.min(sections.length-1,i)); if(i===currentIndex) return; currentIndex=i; snapping=true; sections[i].scrollIntoView({behavior:'smooth',block:'start'}); setTimeout(()=>{snapping=false;}, 900); }
+            scrollY += (targetScrollY - scrollY) * 0.1;
 
-    document.addEventListener('click', (e)=>{ const a=e.target.closest('a[href^="#"]'); if(!a) return; const id=a.getAttribute('href').slice(1); const el=document.getElementById(id); if(!el) return; e.preventDefault(); const idx=sections.findIndex(s=>s.id===id); if(idx!==-1) scrollToIndex(idx); });
+            uniforms.mouse.value.x += (targetMouse.x - uniforms.mouse.value.x) * 0.05;
+            uniforms.mouse.value.y += (targetMouse.y - uniforms.mouse.value.y) * 0.05;
+            uniforms.time.value = time;
 
-    addEventListener('keydown', (e)=>{
-      if(['ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); scrollToIndex(currentIndex+1); }
-      else if(['ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); scrollToIndex(currentIndex-1); }
-      else if(e.key==='Home'){ e.preventDefault(); scrollToIndex(0); }
-      else if(e.key==='End'){ e.preventDefault(); scrollToIndex(sections.length-1); }
-    }, {passive:false});
+            shapesGroup.children.forEach(mesh => {
+                mesh.rotation.x += mesh.userData.rotX;
+                mesh.rotation.y += mesh.userData.rotY;
+                mesh.position.y = mesh.userData.baseY + (scrollY * 0.001 * mesh.userData.parallaxSpeed);
+                const parallaxX = (targetMouse.x - 0.5) * 0.5;
+                const parallaxY = (targetMouse.y - 0.5) * 0.5;
+                mesh.position.x += (parallaxX - mesh.position.x) * 0.02;
+            });
 
-    const TH = () => Math.round(innerHeight * 0.70);
-    let wheelAcc=0, lastWheelDir=0, wheelTimer=null;
-    addEventListener('wheel', (e)=>{
-      if(snapping) { e.preventDefault(); return; }
-      const dy=e.deltaY; const dir=Math.sign(dy);
-      if(dir===0) return;
-      if(lastWheelDir!==0 && dir!==lastWheelDir) wheelAcc=0;
-      lastWheelDir=dir; wheelAcc += Math.abs(dy);
-      e.preventDefault();
-      clearTimeout(wheelTimer);
-      wheelTimer=setTimeout(()=>{ wheelAcc=0; }, 350);
-      if(wheelAcc >= TH()){
-        scrollToIndex(currentIndex + (dir>0?1:-1));
-        wheelAcc=0;
-      }
-    }, {passive:false});
+            shapesGroup.rotation.z = scrollY * 0.0002;
+            renderer.render(scene, camera);
+        }
+        
+        animate();
 
-    let touchStartY=0, touchAcc=0, touchDir=0;
-    addEventListener('touchstart', (e)=>{ if(snapping) return; touchStartY=e.touches[0].clientY; touchAcc=0; touchDir=0; }, {passive:true});
-    addEventListener('touchmove', (e)=>{
-      if(snapping) { e.preventDefault(); return; }
-      const y=e.touches[0].clientY; const dy=touchStartY - y; const dir=Math.sign(dy);
-      if(touchDir!==0 && dir!==touchDir){ touchAcc=0; touchStartY=y; }
-      touchDir=dir; touchAcc += Math.abs(dy);
-      e.preventDefault();
-      if(touchAcc >= TH()){
-        scrollToIndex(currentIndex + (dir>0?1:-1));
-        touchAcc=0; touchStartY=y;
-      }
-    }, {passive:false});
-
-    addEventListener('scroll', ()=>{ if(snapping) return; currentIndex=indexFromViewport(); }, {passive:true});
-
-    // Contact opacity boost near its section (unchanged)
-    const contactCard = document.querySelector('#contact .card');
-    const contactIO = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{
-        const r = e.intersectionRatio; // 0..1
-        const alpha = 0.42 + r*0.36; // up to ~0.78 when centered
-        contactCard.style.setProperty('--contactAlpha', alpha.toFixed(2));
-      });
-    }, {threshold:[0,0.25,0.5,0.75,1]});
-    if(contactCard) contactIO.observe(document.getElementById('contact'));
-
-    // HUD auto-hide on scroll activity (mobile-safe)
-    const hud = document.getElementById('hud');
-    let hudTimer=null; let lastY=scrollY||pageYOffset;
-    addEventListener('scroll', ()=>{
-      const y=scrollY||pageYOffset; if(Math.abs(y-lastY)>2){ hud.classList.add('hidden'); clearTimeout(hudTimer); hudTimer=setTimeout(()=>hud.classList.remove('hidden'), 800);} lastY=y;
-    }, {passive:true});
-
-    // ===================== BLOG (Medium @shagihan) (unchanged) =====================
-    const postsEl = document.getElementById('posts');
-    async function loadMedium(){
-      const user = 'shagihan';
-      try{
-        const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://medium.com/feed/@'+user)}`;
-        const res = await fetch(url, {mode:'cors'});
-        if(!res.ok) throw new Error('rss2json http '+res.status);
-        const data = await res.json();
-        if(!data || !Array.isArray(data.items)) throw new Error('rss2json bad payload');
-        const items = data.items.slice(0,5).map(i=>({title:i.title, link:i.link, date:i.pubDate}));
-        renderPosts(items); return;
-      }catch(e){}
-      try{
-        const res = await fetch('https://medium.com/@shagihan/latest?format=json');
-        if(!res.ok) throw new Error('medium http '+res.status);
-        const text = await res.text();
-        const json = JSON.parse(text.replace(/^\)\]\}while\(1\);\n?/,''));
-        const refs = json.payload.references.Post || {};
-        const arr = Object.values(refs).sort((a,b)=>b.firstPublishedAt-a.firstPublishedAt).slice(0,5)
-          .map(p=>({title:p.title, link:`https://medium.com/p/${p.uniqueSlug}`, date:new Date(p.firstPublishedAt).toISOString()}));
-        renderPosts(arr); return;
-      }catch(e){}
-      renderPosts([{title:'Sample Post — Replace with your Medium feed', link:'https://medium.com/@shagihan', date:new Date().toISOString()}]);
-    }
-    function renderPosts(items){ postsEl.innerHTML = items.map(p=>{ const d=new Date(p.date); const ds=isNaN(d)?'':d.toLocaleDateString(); return `<article class=\"post\"><h3><a href=\"${p.link}\" target=\"_blank\" rel=\"noopener\">${p.title}</a></h3><time>${ds}</time></article>`; }).join(''); }
-    loadMedium();
-
-    // Footer year
-    document.getElementById('y').textContent = new Date().getFullYear();
-
-    // ===================== Self‑tests (quiet, unchanged) =====================
-    function selfTests(){ try{ const results=[]; const assert=(n,c)=>results.push({n,p:!!c}); assert('selfTests exists', typeof selfTests==='function'); assert('points exists', !!points); assert('wheel gating active', typeof wheelAcc==='number' && typeof lastWheelDir==='number'); assert('touch gating active', true); }catch(e){} }
-  </script>
+        window.addEventListener('resize', () => {
+            const w = canvasContainer.offsetWidth;
+            const h = canvasContainer.offsetHeight;
+            renderer.setSize(w, h);
+            uniforms.resolution.value.set(w, h);
+        });
+    </script>
 </body>
 </html>
